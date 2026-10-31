@@ -1,0 +1,37 @@
+
+{% extends "base.html" %}
+
+{% block title %}Khu vực giáo viên - HSK Exam{% endblock %}
+
+{% block content %}
+<section class="levels-section">
+    <div class="section-heading">
+        <span class="section-tag">TEACHER DASHBOARD</span>
+        <h2>Xin chào giáo viên {{ session.get('full_name') }}!</h2>
+        <p>Khu vực quản lý đề thi và học viên.</p>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Quản lý đề thi</h3>
+            <p>Tạo và chỉnh sửa đề thi HSK 1–6.</p>
+            <span>Đang phát triển</span>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Quản lý câu hỏi</h3>
+            <p>Thêm câu hỏi Nghe, Đọc và Viết.</p>
+            <span>Đang phát triển</span>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">✍️</div>
+            <h3>Chấm bài viết</h3>
+            <p>Đánh giá và nhận xét bài viết của học viên.</p>
+            <span>Đang phát triển</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

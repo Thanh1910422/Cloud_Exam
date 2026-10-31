@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Tài khoản - HSK Exam{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card dashboard-card">
+        <div class="auth-heading">
+            <span class="auth-symbol">汉</span>
+            <h1>Xin chào, {{ session.get('full_name') }}!</h1>
+            <p>Chào mừng bạn đến với hệ thống HSK Exam.</p>
+        </div>
+
+        <div class="dashboard-info">
+            <p>
+                <strong>Email:</strong>
+                {{ session.get('email') }}
+            </p>
+
+            <p>
+                <strong>Vai trò:</strong>
+                {{ session.get('role') }}
+            </p>
+        </div>
+
+        <p>
+            Các chức năng làm bài thi và theo dõi kết quả
+            sẽ được xây dựng ở các bước tiếp theo.
+        </p>
+
+        <form method="POST" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn-primary auth-submit">
+                Đăng xuất
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

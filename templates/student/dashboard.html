@@ -1,0 +1,37 @@
+
+{% extends "base.html" %}
+
+{% block title %}Khu vực học viên - HSK Exam{% endblock %}
+
+{% block content %}
+<section class="levels-section">
+    <div class="section-heading">
+        <span class="section-tag">STUDENT DASHBOARD</span>
+        <h2>Xin chào, {{ session.get('full_name') }}!</h2>
+        <p>Chào mừng bạn đến với khu vực luyện thi HSK.</p>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Thi thử HSK</h3>
+            <p>Chọn cấp độ và bắt đầu luyện tập.</p>
+            <a href="{{ url_for('index') }}#levels">Chọn cấp độ →</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Kết quả thi</h3>
+            <p>Xem điểm số và kết quả các bài thi.</p>
+            <span>Đang phát triển</span>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Lịch sử thi</h3>
+            <p>Theo dõi những bài thi bạn đã thực hiện.</p>
+            <span>Đang phát triển</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

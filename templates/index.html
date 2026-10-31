@@ -1,0 +1,149 @@
+
+{% extends "base.html" %}
+
+{% block title %}Trang chủ - HSK Exam{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <span class="hero-tag">
+            CHINESE LANGUAGE EXAMINATION
+        </span>
+
+        <h1>
+            Chinh phục tiếng Trung
+            <span>cùng HSK Exam</span>
+        </h1>
+
+        <p>
+            Luyện tập và thi thử tiếng Trung từ HSK 1 đến HSK 6.
+            Hệ thống hỗ trợ bài thi Nghe, Đọc và Viết,
+            giúp bạn theo dõi tiến độ học tập.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="/register" class="btn-primary">
+                Bắt đầu luyện thi
+            </a>
+
+            <a href="#levels" class="btn-outline">
+                Khám phá cấp độ
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="hero-symbol">
+        <span>汉</span>
+        <p>汉语水平考试</p>
+        <small>Chinese Proficiency Test</small>
+    </div>
+
+</section>
+
+
+<!-- CÁC CẤP ĐỘ HSK -->
+
+<section class="levels-section" id="levels">
+
+    <div class="section-heading">
+
+        <span class="section-tag">HSK LEVELS</span>
+
+        <h2>Chọn cấp độ thi của bạn</h2>
+
+        <p>
+            Hệ thống cung cấp bài thi thử theo sáu cấp độ HSK.
+        </p>
+
+    </div>
+
+    <div class="level-grid">
+
+        {% for level in range(1, 7) %}
+
+        <div class="level-card">
+
+            <div class="level-number">
+                HSK {{ level }}
+            </div>
+
+            <h3>HSK cấp độ {{ level }}</h3>
+
+            <p>
+                Bài thi thử tiếng Trung cấp độ {{ level }}.
+            </p>
+
+            <a href="/register">
+                Bắt đầu thi →
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- CHỨC NĂNG -->
+
+<section class="features-section" id="features">
+
+    <div class="section-heading">
+
+        <span class="section-tag">FEATURES</span>
+
+        <h2>Chức năng hệ thống</h2>
+
+    </div>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">🎧</div>
+            <h3>Listening - Nghe</h3>
+            <p>
+                Luyện nghe tiếng Trung qua các đoạn hội thoại
+                và file âm thanh.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📖</div>
+            <h3>Reading - Đọc</h3>
+            <p>
+                Luyện đọc hiểu, từ vựng và ngữ pháp
+                tiếng Trung.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">✍️</div>
+            <h3>Writing - Viết</h3>
+            <p>
+                Luyện viết câu, sắp xếp từ và viết đoạn văn
+                theo cấp độ.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Statistics - Thống kê</h3>
+            <p>
+                Theo dõi điểm số và lịch sử thi
+                của học viên.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
