@@ -187,7 +187,12 @@ def login():
                 session["full_name"] = user["full_name"]
                 session["email"] = user["email"]
                 session["role"] = user["role_name"]
-
+                current_app.logger.warning(
+                    "LOGIN USER ID: %r | EMAIL: %r | ROLE: %r",
+                    session.get("user_id"),
+                    session.get("email"),
+                    session.get("role")
+                )
                 flash(
                     "Đăng nhập thành công!",
                     "success"

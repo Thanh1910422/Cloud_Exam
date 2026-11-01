@@ -12,26 +12,35 @@
     </div>
 
     <div class="feature-grid">
+
+        <!-- Quản lý đề thi -->
         <div class="feature-card">
             <div class="feature-icon">📝</div>
             <h3>Quản lý đề thi</h3>
-            <p>Tạo và chỉnh sửa đề thi HSK 1–6.</p>
-            <span>Đang phát triển</span>
+            <p>Xem các đề thi được phân công và quản lý nội dung đề thi HSK 1–6.</p>
+
+            <a href="{{ url_for('teacher_exam.exams') }}"
+               class="btn btn-primary">
+                Xem danh sách đề thi
+            </a>
         </div>
 
+        <!-- Quản lý câu hỏi -->
         <div class="feature-card">
             <div class="feature-icon">📋</div>
             <h3>Quản lý câu hỏi</h3>
-            <p>Thêm câu hỏi Nghe, Đọc và Viết.</p>
+            <p>Thêm câu hỏi Nghe, Đọc và Viết vào từng đề thi.</p>
             <span>Đang phát triển</span>
         </div>
 
+        <!-- Chấm bài viết -->
         <div class="feature-card">
             <div class="feature-icon">✍️</div>
             <h3>Chấm bài viết</h3>
             <p>Đánh giá và nhận xét bài viết của học viên.</p>
             <span>Đang phát triển</span>
         </div>
+
     </div>
 </section>
 {% endblock %}

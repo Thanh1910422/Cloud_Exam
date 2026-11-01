@@ -10,11 +10,11 @@ from flask import (
 )
 from dotenv import load_dotenv
 from flask_wtf.csrf import CSRFProtect
-
+from routes.teacher_exams import teacher_exam_bp
 from routes.auth import auth_bp
 from routes.admin import admin_bp
-
-
+from routes.exams import exam_bp
+from routes.teacher_questions import teacher_questions_bp
 load_dotenv()
 
 app = Flask(__name__)
@@ -37,7 +37,9 @@ csrf = CSRFProtect(app)
 # Đăng ký nhóm đường dẫn đăng nhập, đăng ký, đăng xuất
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
-
+app.register_blueprint(exam_bp)
+app.register_blueprint(teacher_exam_bp)
+app.register_blueprint(teacher_questions_bp)
 @app.route("/")
 def index():
     return render_template("index.html")

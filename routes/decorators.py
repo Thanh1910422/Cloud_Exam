@@ -10,8 +10,15 @@ def role_required(*allowed_roles):
             if not session.get("user_id"):
                 flash("Vui lòng đăng nhập để tiếp tục.", "error")
                 return redirect(url_for("auth.login"))
+            current_role = session.get("role")
 
-            if session.get("role") not in allowed_roles:
+            print("========== KIEM TRA QUYEN ==========")
+            print("USER ID:", session.get("user_id"))
+            print("CURRENT ROLE:", repr(current_role))
+            print("ALLOWED ROLES:", repr(allowed_roles))
+            print("====================================")
+
+            if current_role not in allowed_roles:
                 abort(403)
 
             return view_function(*args, **kwargs)

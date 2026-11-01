@@ -1,0 +1,72 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="container">
+
+    <h1>Đề thi được phân công</h1>
+
+    <p>Danh sách các đề thi mà bạn phụ trách.</p>
+
+    <div class="feature-card">
+
+        <table style="width:100%; border-collapse:collapse; margin-top:20px;">
+
+            <thead>
+                <tr>
+                    <th>Mã đề</th>
+                    <th>Tên đề thi</th>
+                    <th>Cấp độ</th>
+                    <th>Thời gian</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.id }}</td>
+                    <td>{{ exam.title }}</td>
+                    <td>{{ exam.level_name }}</td>
+                    <td>{{ exam.duration_minutes }} phút</td>
+
+                    <td>
+                        {% if exam.status == "draft" %}
+                            Bản nháp
+                        {% elif exam.status == "published" %}
+                            Đã xuất bản
+                        {% else %}
+                            Đã lưu trữ
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="{{ url_for(
+                            'teacher_questions.exam_content',
+                            exam_id=exam.id
+                        ) }}">
+                            Xem nội dung
+                        </a>
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        Bạn chưa được phân công đề thi nào.
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}

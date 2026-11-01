@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+
+{% block title %}Danh sách Giảng viên - HSK Exam{% endblock %}
+
+{% block content %}
+<section class="levels-section">
+
+    <div class="section-heading">
+        <span class="section-tag">TEACHER MANAGEMENT</span>
+        <h2>Danh sách Giảng viên</h2>
+        <p>Quản lý tài khoản giảng viên trong hệ thống HSK Exam.</p>
+    </div>
+
+    <div class="feature-card">
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th>Họ và tên</th>
+                    <th>Email</th>
+                    <th>Thao tác</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td>{{ teacher.full_name }}</td>
+
+                <td>{{ teacher.email }}</td>
+
+                <td>
+                    <form method="POST"
+                          action="{{ url_for('admin.toggle_teacher_status', teacher_id=teacher.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit">
+                            {% if teacher.is_active %}
+                                Khóa tài khoản
+                            {% else %}
+                                Mở khóa tài khoản
+                            {% endif %}
+                        </button>
+                    </form>
+                </td>
+
+                <td>
+                    {% if teacher.is_active %}
+                        <span>Đang hoạt động</span>
+                    {% else %}
+                        <span>Đã khóa</span>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% else %}
+            <tr>
+                <td colspan="4">Chưa có giảng viên nào.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p>
+    <a href="{{ url_for('admin.dashboard') }}">
+        Quay lại trang quản trị
+    </a>
+</p>
+
+</section>
+{% endblock %}

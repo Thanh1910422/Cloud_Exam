@@ -1,0 +1,192 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>Chi tiết đề thi</h1>
+
+    <h2>{{ exam.title }}</h2>
+
+    <p><strong>Cấp độ:</strong> {{ exam.level_name }}</p>
+    <p><strong>Thời gian:</strong> {{ exam.duration_minutes }} phút</p>
+    <p><strong>Mô tả:</strong> {{ exam.description or "Chưa có mô tả" }}</p>
+    <p><strong>Trạng thái:</strong> {{ exam.status }}</p>
+    
+<hr>
+
+<h2>Tải tài liệu đề thi</h2>
+
+<p>Giáo viên có thể tải đề thi, file nghe, đáp án và hình ảnh câu hỏi lên hệ thống.</p>
+
+<!-- Tải file đề thi -->
+<form method="POST"
+      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="file_type" value="exam_document">
+
+    <div style="margin-bottom: 15px;">
+        <label><strong>1. File đề thi (PDF hoặc DOCX):</strong></label><br>
+        <input type="file" name="file" accept=".pdf,.docx" required>
+    </div>
+
+    <button type="submit">Tải đề thi lên</button>
+</form>
+
+<hr>
+
+<!-- Tải file nghe -->
+<form method="POST"
+      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="file_type" value="listening_audio">
+
+    <div style="margin-bottom: 15px;">
+        <label><strong>2. File nghe (MP3 hoặc WAV):</strong></label><br>
+        <input type="file" name="file" accept=".mp3,.wav" required>
+    </div>
+
+    <button type="submit">Tải file nghe lên</button>
+</form>
+
+<hr>
+
+<!-- Tải đáp án -->
+<form method="POST"
+      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="file_type" value="answer_key">
+
+    <div style="margin-bottom: 15px;">
+        <label><strong>3. File đáp án (PDF hoặc DOCX):</strong></label><br>
+        <input type="file" name="file" accept=".pdf,.docx">
+    </div>
+
+    <button type="submit">Tải đáp án lên</button>
+</form>
+
+<hr>
+
+<!-- Tải hình ảnh -->
+<form method="POST"
+      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="file_type" value="question_image">
+
+    <div style="margin-bottom: 15px;">
+        <label><strong>4. Hình ảnh câu hỏi (JPG hoặc PNG):</strong></label><br>
+        <input type="file" name="file" accept=".jpg,.jpeg,.png">
+    </div>
+
+    <button type="submit">Tải hình ảnh lên</button>
+</form>
+
+<hr>
+
+    <hr>
+
+    <h2>Cấu trúc đề thi</h2>
+
+    
+    {% if sections %}
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th>Phần thi</th>
+                    <th>Tên phần</th>
+                    <th>Thời gian</th>
+                    <th>Thứ tự</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for section in sections %}
+                <tr>
+                    <td>{{ section.section_type }}</td>
+                    <td>{{ section.section_title }}</td>
+                    <td>{{ section.time_limit_minutes }} phút</td>
+                    <td>{{ section.sort_order }}</td>
+                    <td>
+                        <a href="{{ url_for(
+                            'teacher_questions.section_questions',
+                            section_id=section.id
+                        ) }}">
+                            Quản lý câu hỏi
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Đề thi chưa có phần thi nào.</p>
+    {% endif %}
+
+
+    <hr>
+
+    <h2>Thêm phần thi</h2>
+
+    <form method="POST"
+          action="{{ url_for('teacher_questions.add_section', exam_id=exam.id) }}">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <div style="margin-bottom:15px;">
+            <label for="section_type">Loại phần thi:</label>
+            <select name="section_type" id="section_type" required>
+                <option value="">-- Chọn phần thi --</option>
+                <option value="listening">Listening - Nghe</option>
+                <option value="reading">Reading - Đọc</option>
+                <option value="writing">Writing - Viết</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label for="section_title">Tên phần thi:</label>
+            <input
+                type="text"
+                id="section_title"
+                name="section_title"
+                placeholder="Ví dụ: HSK 1 - Listening"
+                required
+            >
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label for="time_limit_minutes">Thời gian (phút):</label>
+            <input
+                type="number"
+                id="time_limit_minutes"
+                name="time_limit_minutes"
+                min="1"
+                value="20"
+                required
+            >
+        </div>
+
+        <button type="submit">Thêm phần thi</button>
+
+    </form>
+
+    <br>
+
+    <a href="{{ url_for('teacher_exam.exams') }}">
+        Quay lại danh sách đề thi
+    </a>
+
+</div>
+
+{% endblock %}

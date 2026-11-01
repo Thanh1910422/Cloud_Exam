@@ -128,5 +128,89 @@ def create_teacher():
         finally:
             if connection:
                 connection.close()
+@admin_bp.route("/teachers")
+@role_required("admin")
+def teachers():
+    connection = None
+
+    try:
+        connection = get_connection()
+
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                SELECT
+                    u.id,
+                    u.full_name,
+                    u.email,
+                    u.is_active,
+                    u.created_at
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                WHERE r.role_name = 'teacher'
+                ORDER BY u.created_at DESC
+            """)
+
+            teacher_list = cursor.fetchall()
+
+        return render_template(
+            "admin/teachers.html",
+            teachers=teacher_list
+        )
+
+    except Exception:
+        current_app.logger.exception("Cannot load teacher list")
+        flash("Không thể tải danh sách giảng viên.", "error")
+        return redirect(url_for("admin.dashboard"))
+
+    finally:
+        if connection:
+            connection.close()
+
 
     return render_template("admin/create_teacher.html")
+
+@admin_bp.route("/teachers/<int:teacher_id>/toggle-status", methods=["POST"])
+@role_required("admin")
+def toggle_teacher_status(teacher_id):
+    connection = None
+
+    try:
+        connection = get_connection()
+
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                UPDATE users
+                SET is_active = NOT is_active
+                WHERE id = %s
+                  AND role_id = (
+                      SELECT id FROM roles
+                      WHERE role_name = 'teacher'
+                  )
+                RETURNING full_name, is_active
+            """, (teacher_id,))
+
+            teacher = cursor.fetchone()
+
+            if not teacher:
+                flash("Không tìm thấy giảng viên.", "error")
+                return redirect(url_for("admin.teachers"))
+
+            connection.commit()
+
+        if teacher["is_active"]:
+            flash("Đã mở khóa tài khoản giảng viên.", "success")
+        else:
+            flash("Đã khóa tài khoản giảng viên.", "success")
+
+    except Exception:
+        if connection:
+            connection.rollback()
+
+        current_app.logger.exception("Cannot update teacher status")
+        flash("Không thể thay đổi trạng thái tài khoản.", "error")
+
+    finally:
+        if connection:
+            connection.close()
+
+    return redirect(url_for("admin.teachers"))
