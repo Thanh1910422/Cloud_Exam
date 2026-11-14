@@ -1,0 +1,103 @@
+/* ==========================================
+   HỌC VIÊN LÀM BÀI THI
+   ========================================== */
+
+.exam-page {
+    max-width: 960px;
+    margin: 30px auto 80px;
+    padding: 0 20px;
+}
+
+.exam-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    padding: 20px 24px;
+    margin-bottom: 18px;
+}
+
+.exam-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.exam-meta { color: #64748b; font-size: 14px; }
+
+.exam-table { width: 100%; border-collapse: collapse; }
+.exam-table th, .exam-table td {
+    text-align: left;
+    padding: 10px 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.exam-timer {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #1e40af;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.exam-timer .time { font-size: 22px; font-variant-numeric: tabular-nums; }
+.exam-timer.warning { background: #dc2626; }
+
+.section-title {
+    margin: 30px 0 12px;
+    color: #1e40af;
+}
+
+.question-block { scroll-margin-top: 80px; }
+.question-number { font-weight: bold; color: #1e40af; }
+.question-text { font-size: 22px; margin: 6px 0 10px; white-space: pre-line; line-height: 1.6; }
+.question-image { max-width: 220px; max-height: 170px; display: block; margin: 8px 0; }
+
+.option-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.option-choice {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    min-width: 90px;
+    text-align: center;
+    cursor: pointer;
+    background: white;
+}
+
+.option-choice input { margin-right: 4px; }
+.option-choice img { max-width: 130px; max-height: 100px; display: block; margin: 6px auto 0; }
+.option-choice:has(input:checked) { border-color: #2563eb; background: #eff6ff; }
+
+.option-choice.is-correct { border-color: #16a34a; background: #f0fdf4; }
+.option-choice.is-wrong { border-color: #dc2626; background: #fef2f2; }
+
+.score-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    text-align: center;
+}
+
+.score-board .score { font-size: 34px; font-weight: bold; color: #1e40af; }
+.badge-ok { color: #16a34a; font-weight: bold; }
+.badge-bad { color: #dc2626; font-weight: bold; }
+
+.typed-answer {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+}
+.typed-answer:focus { outline: none; border-color: #2563eb; }

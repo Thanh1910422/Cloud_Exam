@@ -34,9 +34,9 @@ def extract_pdf_images():
 
     total_images = 0
 
-    # Kiểm tra các trang PDF số 3, 4, 5
+    # Trích ảnh các trang có câu hỏi: 3, 4, 5, 6, 8, 9
     # (chỉ số trang trong Python bắt đầu từ 0)
-    pages_to_extract = [2, 3, 4]
+    pages_to_extract = [2, 3, 4, 5, 7, 8]
 
     for page_index in pages_to_extract:
 

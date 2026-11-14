@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Kết quả - {{ attempt.exam_title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<div class="exam-page">
+    <h2>Kết quả: {{ attempt.exam_title }}</h2>
+    <p class="exam-meta">
+        Nộp lúc {{ attempt.submitted_at.strftime('%H:%M %d/%m/%Y') if attempt.submitted_at else '' }}
+        · Đúng {{ correct_count }}/{{ question_count }} câu
+    </p>
+    <br>
+
+    <div class="score-board">
+        <div class="exam-card">
+            <div>Nghe 听力</div>
+            <div class="score">{{ attempt.listening_score|int }}</div>
+            <div class="exam-meta">/ {{ max_scores.get('listening', 0)|int }}</div>
+        </div>
+        <div class="exam-card">
+            <div>Đọc 阅读</div>
+            <div class="score">{{ attempt.reading_score|int }}</div>
+            <div class="exam-meta">/ {{ max_scores.get('reading', 0)|int }}</div>
+        </div>
+        {% if 'writing' in max_scores %}
+        <div class="exam-card">
+            <div>Viết 书写</div>
+            <div class="score">{{ attempt.writing_score|int }}</div>
+            <div class="exam-meta">/ {{ max_scores.get('writing', 0)|int }}</div>
+        </div>
+        {% endif %}
+        <div class="exam-card">
+            <div>Tổng điểm</div>
+            <div class="score">{{ attempt.total_score|int }}</div>
+            <div class="exam-meta">/ {{ max_total|int }}</div>
+            {% if passed %}
+                <div class="badge-ok">ĐẠT</div>
+            {% else %}
+                <div class="badge-bad">CHƯA ĐẠT</div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if attempt.status == 'submitted' %}
+        <div class="exam-card">Phần viết đang chờ giáo viên chấm.</div>
+    {% endif %}
+
+    {% for section in sections %}
+        <h2 class="section-title">{{ section.section_title }}</h2>
+
+        {% for q in section.questions %}
+        {% set ans = answers.get(q.id) %}
+        <div class="exam-card">
+            <div class="question-number">
+                Câu {{ q.sort_order }}
+                {% if ans and ans.is_correct %}
+                    <span class="badge-ok">✓ Đúng</span>
+                {% elif q.question_type == 'essay' and ans and ans.answer_text %}
+                    <span class="exam-meta">Chờ giáo viên chấm</span>
+                {% elif ans and (ans.selected_option_id or ans.answer_text) %}
+                    <span class="badge-bad">✗ Sai</span>
+                {% else %}
+                    <span class="badge-bad">— Bỏ trống</span>
+                {% endif %}
+            </div>
+
+            {% if q.question_text %}<div class="question-text">{{ q.question_text }}</div>{% endif %}
+            {% if q.image_url %}<img class="question-image" src="{{ q.image_url }}" alt="">{% endif %}
+
+            {% if q.question_type in ('fill_blank', 'essay') %}
+                <p>Bài của bạn: <strong>{{ ans.answer_text if ans and ans.answer_text else '(bỏ trống)' }}</strong></p>
+                {% for o in q.options if o.is_correct and o.option_text %}
+                    <p class="badge-ok">Đáp án: {{ o.option_text }}</p>
+                {% endfor %}
+            {% else %}
+            <div class="option-grid">
+                {% for o in q.options %}
+                <div class="option-choice
+                    {% if o.is_correct %}is-correct{% elif ans and ans.selected_option_id == o.id %}is-wrong{% endif %}">
+                    <strong>{{ o.option_label }}</strong>
+                    {% if ans and ans.selected_option_id == o.id %}(bạn chọn){% endif %}
+                    {% if o.option_image_url %}<img src="{{ o.option_image_url }}" alt="" loading="lazy">{% endif %}
+                    {% if o.option_text %}<div>{{ o.option_text }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endfor %}
+
+    <a href="{{ url_for('student_exam.exams') }}">← Về danh sách đề thi</a>
+</div>
+{% endblock %}

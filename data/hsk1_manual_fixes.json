@@ -1,0 +1,131 @@
+{
+    "_huong_dan": "Sửa tay những chỗ OCR đọc sai. Khóa là số câu. Các trường có thể dùng: question_text, pinyin, options {A: ...}, correct_answer, note, verified (true = đã kiểm tra xong). Sau khi sửa, chạy lại scripts/test_question_parser.py.",
+    "17": {
+        "options": {
+            "A": "开车"
+        },
+        "note": "Sửa từ pinyin 'kāi chē', OCR mất chữ 开"
+    },
+    "19": {
+        "note": "OCR đọc '4 / 7 / 10', cần đối chiếu PDF"
+    },
+    "20": {
+        "options": {
+            "C": "很冷"
+        },
+        "note": "Sửa từ pinyin 'hěn lěng', OCR đọc thành '很 4'"
+    },
+    "21": {
+        "question_text": "猫",
+        "pinyin": "māo"
+    },
+    "22": {
+        "question_text": "衣服",
+        "pinyin": "yīfu"
+    },
+    "23": {
+        "question_text": "水果",
+        "pinyin": "shuǐguǒ"
+    },
+    "24": {
+        "question_text": "",
+        "pinyin": "zuò",
+        "note": "OCR chỉ đọc được pinyin 'zuò' (坐 hay 做?), cần đối chiếu PDF"
+    },
+    "25": {
+        "question_text": "米饭",
+        "pinyin": "mǐfàn"
+    },
+    "26": {
+        "question_text": "他在睡觉呢。",
+        "pinyin": "Tā zài shuìjiào ne."
+    },
+    "27": {
+        "question_text": "她明天坐火车去。",
+        "pinyin": "Tā míngtiān zuò huǒchē qù."
+    },
+    "28": {
+        "question_text": "他在医院工作，是个医生。",
+        "pinyin": "Tā zài yīyuàn gōngzuò, shì ge yīshēng."
+    },
+    "29": {
+        "question_text": "我想喝一杯茶。",
+        "pinyin": "Wǒ xiǎng hē yì bēi chá."
+    },
+    "30": {
+        "question_text": "他们是同学。",
+        "pinyin": "Tāmen shì tóngxué."
+    },
+    "31": {
+        "question_text": "你怎么去那个饭店？",
+        "pinyin": "Nǐ zěnme qù nàge fàndiàn?"
+    },
+    "32": {
+        "question_text": "现在几点了？",
+        "pinyin": "Xiànzài jǐ diǎn le?"
+    },
+    "33": {
+        "question_text": "你爱吃什么水果？",
+        "pinyin": "Nǐ ài chī shénme shuǐguǒ?"
+    },
+    "34": {
+        "question_text": "这个小杯子多少钱？",
+        "pinyin": "Zhège xiǎo bēizi duōshao qián?"
+    },
+    "35": {
+        "question_text": "你是哪国人？",
+        "pinyin": "Nǐ shì nǎ guó rén?"
+    },
+    "_31_35_dap_an": "OCR đọc được các câu trả lời: 中国人 / …点了 / 苹果 / …块 / 坐出租车 / 好的，谢谢 nhưng mất chữ cái A-F và con số. Điền options A-F cho từng câu 31-35 sau khi xem PDF.",
+    "_36_40_goi_y": "Từ cho sẵn (đọc từ pinyin): B 火车站, C 对不起, D 名字, E 看见, F 学习, A = ? . Các câu OCR thấy được: 你叫什么（ ）？ / 她上午在（ ）。 / 喂，张先生在（ ）吗？ / 女：（ ），我今天不能和你去看医生了。 / 你（ ）爸爸的衣服了吗？ — cần xem PDF để biết câu nào là ví dụ và câu nào số mấy.",
+    "36": {
+        "options": {
+            "B": "火车站",
+            "C": "对不起",
+            "D": "名字",
+            "E": "看见",
+            "F": "学习"
+        },
+        "note": "Thiếu từ A và nội dung câu (xem _36_40_goi_y)"
+    },
+    "37": {
+        "options": {
+            "B": "火车站",
+            "C": "对不起",
+            "D": "名字",
+            "E": "看见",
+            "F": "学习"
+        },
+        "note": "Thiếu từ A và nội dung câu (xem _36_40_goi_y)"
+    },
+    "38": {
+        "options": {
+            "B": "火车站",
+            "C": "对不起",
+            "D": "名字",
+            "E": "看见",
+            "F": "学习"
+        },
+        "note": "Thiếu từ A và nội dung câu (xem _36_40_goi_y)"
+    },
+    "39": {
+        "options": {
+            "B": "火车站",
+            "C": "对不起",
+            "D": "名字",
+            "E": "看见",
+            "F": "学习"
+        },
+        "note": "Thiếu từ A và nội dung câu (xem _36_40_goi_y)"
+    },
+    "40": {
+        "options": {
+            "B": "火车站",
+            "C": "对不起",
+            "D": "名字",
+            "E": "看见",
+            "F": "学习"
+        },
+        "note": "Thiếu từ A và nội dung câu (xem _36_40_goi_y)"
+    }
+}

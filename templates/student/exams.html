@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Thi thử HSK - HSK Exam{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<div class="exam-page">
+    <h2>Đề thi thử</h2>
+    <p class="exam-meta">Chọn đề và bấm "Bắt đầu". Đồng hồ chạy ngay khi bạn vào bài.</p>
+    <br>
+
+    {% for exam in exams %}
+    <div class="exam-card exam-list-item">
+        <div>
+            <h3>{{ exam.title }}</h3>
+            <div class="exam-meta">
+                {{ exam.level_name }} · {{ exam.question_count }} câu · {{ exam.duration_minutes }} phút
+            </div>
+            {% if exam.description %}<p>{{ exam.description }}</p>{% endif %}
+        </div>
+
+        <form method="POST" action="{{ url_for('student_exam.start_exam', exam_id=exam.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-primary" style="border:none; cursor:pointer;">
+                Bắt đầu
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div class="exam-card">Hiện chưa có đề thi nào được mở.</div>
+    {% endfor %}
+
+    <h2 id="lich-su" style="margin-top:40px;">Lịch sử thi</h2>
+    <div class="exam-card">
+        {% if attempts %}
+        <table class="exam-table">
+            <thead>
+                <tr>
+                    <th>Đề thi</th>
+                    <th>Bắt đầu</th>
+                    <th>Nghe</th>
+                    <th>Đọc</th>
+                    <th>Viết</th>
+                    <th>Tổng</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in attempts %}
+                <tr>
+                    <td>{{ a.exam_title }}</td>
+                    <td>{{ a.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    {% if a.status == 'in_progress' %}
+                        <td colspan="4"><em>Đang làm</em></td>
+                        <td><a href="{{ url_for('student_exam.take_exam', attempt_id=a.id) }}">Làm tiếp</a></td>
+                    {% else %}
+                        <td>{{ a.listening_score|int }}</td>
+                        <td>{{ a.reading_score|int }}</td>
+                        <td>{{ a.writing_score|int if a.writing_score else '-' }}</td>
+                        <td><strong>{{ a.total_score|int }}</strong></td>
+                        <td><a href="{{ url_for('student_exam.result', attempt_id=a.id) }}">Xem</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Bạn chưa làm bài thi nào.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

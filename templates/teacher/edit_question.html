@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <style>
+        .opt-row { display: flex; align-items: center; gap: 12px; border: 1px solid #ddd;
+                   border-radius: 6px; padding: 8px; margin-bottom: 8px; }
+        .opt-row img { max-width: 110px; max-height: 90px; }
+        .opt-row input[type=text] { flex: 1; padding: 6px; }
+        .opt-row:has(input[type=radio]:checked) { border-color: #2a9d4b; background: #eaf7ee; }
+    </style>
+
+    <p>
+        <a href="{{ url_for('teacher_questions.section_questions', section_id=question.section_id) }}">
+            ← {{ question.exam_title }} / {{ question.section_title }}
+        </a>
+    </p>
+
+    <h2>Sửa câu {{ question.sort_order }}</h2>
+
+    {% if question.image_url %}
+        <img src="{{ question.image_url }}" alt="Ảnh câu hỏi" style="max-width:220px;">
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div style="margin:15px 0;">
+            <label for="question_text"><strong>Nội dung câu hỏi:</strong></label><br>
+            <textarea id="question_text" name="question_text" rows="3"
+                      style="width:100%; font-size:18px;">{{ question.question_text }}</textarea>
+        </div>
+
+        <div style="margin:15px 0;">
+            <label for="points"><strong>Điểm:</strong></label>
+            <input type="number" id="points" name="points" step="0.5" min="0"
+                   value="{{ question.points }}" style="width:80px;">
+        </div>
+
+        {% if typed %}
+        <p><strong>Đáp án đúng</strong> (học viên gõ khớp là được điểm; bỏ qua khoảng trắng, dấu câu.
+           Nhiều cách viết đúng thì ngăn bởi dấu <code>/</code>, vd <code>弟弟高兴地笑了 / 高兴地弟弟笑了</code>):</p>
+        {% for o in options %}
+            <input type="text" name="option_{{ o.id }}" value="{{ o.option_text }}"
+                   style="width:100%; font-size:20px; padding:8px;">
+        {% endfor %}
+        {% for label in missing_labels %}
+            <input type="text" name="new_option_{{ label }}" placeholder="Nhập đáp án đúng"
+                   style="width:100%; font-size:20px; padding:8px;">
+        {% endfor %}
+        <br><br>
+        {% else %}
+        <p><strong>Đáp án</strong> (chọn nút tròn ở đáp án đúng):</p>
+
+        {% for o in options %}
+        <label class="opt-row">
+            <input type="radio" name="correct_label" value="{{ o.option_label }}"
+                   {% if o.is_correct %}checked{% endif %}>
+            <strong>{{ o.option_label }}</strong>
+            {% if o.option_image_url %}<img src="{{ o.option_image_url }}" alt="{{ o.option_label }}">{% endif %}
+            <input type="text" name="option_{{ o.id }}" value="{{ o.option_text }}"
+                   placeholder="(để trống nếu đáp án là tranh)">
+        </label>
+        {% endfor %}
+
+        {% for label in missing_labels %}
+        <label class="opt-row" style="border-style:dashed;">
+            <input type="radio" name="correct_label" value="{{ label }}">
+            <strong>{{ label }}</strong>
+            <input type="text" name="new_option_{{ label }}"
+                   placeholder="Đáp án {{ label }} chưa có — nhập để thêm">
+        </label>
+        {% endfor %}
+        {% endif %}
+
+        <button type="submit">Lưu câu hỏi</button>
+    </form>
+</div>
+{% endblock %}

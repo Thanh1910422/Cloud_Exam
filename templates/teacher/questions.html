@@ -1,92 +1,76 @@
-
 {% extends "base.html" %}
 
 {% block content %}
 <div class="container">
-    <h2>Quản lý câu hỏi</h2>
+<style>
+    .q-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .q-head { display: flex; gap: 8px; align-items: baseline; margin-bottom: 8px; }
+    .q-type { font-size: 12px; background: #eef; padding: 2px 8px; border-radius: 10px; }
+    .q-text { font-size: 20px; margin: 8px 0; white-space: pre-line; }
+    .q-img  { max-width: 200px; max-height: 160px; display: block; margin: 8px 0; }
+    .opts   { display: flex; flex-wrap: wrap; gap: 12px; }
+    .opt    { border: 1px solid #ccc; border-radius: 6px; padding: 8px; min-width: 90px; text-align: center; }
+    .opt img { max-width: 140px; max-height: 110px; display: block; margin: 4px auto; }
+    .opt.correct { border-color: #2a9d4b; background: #eaf7ee; }
+    .warn   { color: #b45309; font-size: 13px; }
+</style>
 
-    <p>
-        <strong>Đề thi:</strong>
-        {{ section.exam_title }}
+<p><a href="{{ url_for('teacher_questions.exam_content', exam_id=section.exam_id) }}">← {{ section.exam_title }}</a></p>
+<h2>{{ section.section_title }} ({{ questions|length }} câu)</h2>
+
+{% if questions %}
+<form method="POST"
+      action="{{ url_for('teacher_questions.import_answer_key', section_id=section.id) }}"
+      style="border:1px dashed #999; border-radius:8px; padding:12px; margin-bottom:20px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="answer_key"><strong>Nhập nhanh đáp án cả phần thi</strong></label>
+    <p style="margin:4px 0; font-size:13px;">
+        Dán đáp án theo dạng <code>số câu + đáp án</code>.
+        Với câu Đúng/Sai: ✓ = Đúng, × = Sai. Ví dụ:
+        <code>1✓ 2× 3✓ 4× 5✓ 6B 7C 8A 9B 10C 11F 12B</code>
     </p>
+    <textarea id="answer_key" name="answer_key" rows="3" style="width:100%;"></textarea>
+    <button type="submit">Lưu đáp án</button>
+</form>
+{% endif %}
 
-    <p>
-        <strong>Phần thi:</strong>
-        {{ section.section_title }}
-    </p>
+{% if not questions %}
+    <p>Phần thi này chưa có câu hỏi. Chạy <code>scripts/import_questions_to_db.py</code> để nhập đề.</p>
+{% endif %}
 
-    <a href="{{ url_for(
-        'teacher_questions.exam_content',
-        exam_id=section.exam_id
-    ) }}">
-        ← Quay lại đề thi
-    </a>
-
-    <hr>
-
-    <div style="margin: 20px 0;">
-        <h3>Danh sách câu hỏi</h3>
-
-        <button type="button" disabled>
-            + Thêm câu hỏi (Đang phát triển)
-        </button>
+{% for q in questions %}
+<div class="q-card" id="q{{ q.id }}">
+    <div class="q-head">
+        <strong>Câu {{ q.sort_order }}</strong>
+        <a href="{{ url_for('teacher_questions.edit_question', question_id=q.id) }}">✏ Sửa</a>
+        <span class="q-type">{{ q.question_type }}</span>
+        <span>{{ q.points }} điểm</span>
     </div>
 
-    {% if questions %}
-        {% for question in questions %}
-            <div style="
-                border: 1px solid #ddd;
-                padding: 15px;
-                margin-bottom: 15px;
-                border-radius: 8px;
-            ">
-                <h4>
-                    Câu {{ loop.index }}:
-                    {{ question.question_text }}
-                </h4>
+    {% if q.question_text %}<div class="q-text">{{ q.question_text }}</div>{% endif %}
+    {% if q.image_url %}<img class="q-img" src="{{ q.image_url }}" alt="Ảnh câu {{ q.sort_order }}">{% endif %}
+    {% if q.audio_url %}<audio controls src="{{ q.audio_url }}"></audio>{% endif %}
 
-                <p>
-                    <strong>Loại:</strong>
-                    {{ question.question_type }}
-                </p>
-
-                <p>
-                    <strong>Điểm:</strong>
-                    {{ question.points }}
-                </p>
-
-                {% if question.image_url %}
-                    <img
-                        src="{{ question.image_url }}"
-                        alt="Hình ảnh câu hỏi"
-                        style="max-width: 300px;"
-                    >
-                {% endif %}
-
-                {% if question.audio_url %}
-                    <audio controls>
-                        <source src="{{ question.audio_url }}">
-                    </audio>
-                {% endif %}
-
-                {% if question.options %}
-                    <p><strong>Các đáp án:</strong></p>
-
-                    {% for option in question.options %}
-                        <p>
-                            {{ option.option_label }}.
-                            {{ option.option_text }}
-
-                            {% if option.is_correct %}
-                                <strong>(Đáp án đúng)</strong>
-                            {% endif %}
-                        </p>
-                    {% endfor %}
-                {% endif %}
-            </div>
+    {% if q.question_type in ('fill_blank', 'essay') %}
+        {% for o in q.options if o.option_text %}
+            <p>Đáp án đúng: <strong>{{ o.option_text }}</strong></p>
         {% endfor %}
     {% else %}
-        <p>Phần thi này chưa có câu hỏi nào.</p>
+    <div class="opts">
+        {% for o in q.options %}
+        <div class="opt {% if o.is_correct %}correct{% endif %}">
+            <strong>{{ o.option_label }}</strong>
+            {% if o.option_image_url %}<img src="{{ o.option_image_url }}" alt="{{ o.option_label }}">{% endif %}
+            {% if o.option_text %}<div>{{ o.option_text }}</div>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
     {% endif %}
+
+    {% if not q.options|selectattr("is_correct")|list %}
+        <p class="warn">⚠ Chưa có đáp án đúng</p>
+    {% endif %}
+</div>
+{% endfor %}
 </div>
 {% endblock %}

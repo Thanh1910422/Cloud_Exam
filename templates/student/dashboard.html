@@ -15,22 +15,22 @@
         <div class="feature-card">
             <div class="feature-icon">📝</div>
             <h3>Thi thử HSK</h3>
-            <p>Chọn cấp độ và bắt đầu luyện tập.</p>
-            <a href="{{ url_for('index') }}#levels">Chọn cấp độ →</a>
+            <p>Chọn đề và bắt đầu luyện tập.</p>
+            <a href="{{ url_for('student_exam.exams') }}">Vào thi thử →</a>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">📊</div>
             <h3>Kết quả thi</h3>
             <p>Xem điểm số và kết quả các bài thi.</p>
-            <span>Đang phát triển</span>
+            <a href="{{ url_for('student_exam.exams') }}#lich-su">Xem kết quả →</a>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">📚</div>
             <h3>Lịch sử thi</h3>
             <p>Theo dõi những bài thi bạn đã thực hiện.</p>
-            <span>Đang phát triển</span>
+            <a href="{{ url_for('student_exam.exams') }}#lich-su">Xem lịch sử →</a>
         </div>
     </div>
 </section>

@@ -249,6 +249,7 @@ def section_questions(section_id):
                         id,
                         option_label,
                         option_text,
+                        option_image_url,
                         is_correct
                     FROM answer_options
                     WHERE question_id = %s
@@ -276,3 +277,253 @@ def section_questions(section_id):
     finally:
         if connection:
             connection.close()
+
+
+# ==========================================
+# HÀM DÙNG CHUNG: LẤY CÂU HỎI CỦA GIÁO VIÊN
+# ==========================================
+def get_owned_question(cursor, question_id):
+    """Chỉ trả về câu hỏi nếu nó thuộc đề thi của giáo viên đang đăng nhập."""
+    cursor.execute("""
+        SELECT
+            questions.id,
+            questions.section_id,
+            questions.question_type,
+            questions.question_text,
+            questions.image_url,
+            questions.points,
+            questions.sort_order,
+            exam_sections.section_title,
+            exams.title AS exam_title
+        FROM questions
+        JOIN exam_sections ON questions.section_id = exam_sections.id
+        JOIN exams ON exam_sections.exam_id = exams.id
+        WHERE questions.id = %s
+          AND exams.teacher_id = %s
+    """, (question_id, session.get("user_id")))
+
+    return cursor.fetchone()
+
+
+# ==========================================
+# SỬA MỘT CÂU HỎI + CHỌN ĐÁP ÁN ĐÚNG
+# ==========================================
+@teacher_questions_bp.route(
+    "/questions/<int:question_id>/edit",
+    methods=["GET", "POST"]
+)
+@role_required("teacher")
+def edit_question(question_id):
+    connection = None
+
+    try:
+        connection = get_connection()
+
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            question = get_owned_question(cursor, question_id)
+
+            if not question:
+                abort(404)
+
+            cursor.execute("""
+                SELECT id, option_label, option_text, option_image_url, is_correct
+                FROM answer_options
+                WHERE question_id = %s
+                ORDER BY option_label
+            """, (question_id,))
+            options = cursor.fetchall()
+
+            # Câu dạng ghép A-F mà còn thiếu nhãn -> cho phép thêm
+            existing = {o["option_label"] for o in options}
+            missing_labels = []
+            # (câu Đúng/Sai có A-B, câu tranh có A-C thì không cần thêm)
+            typed = question["question_type"] in ("fill_blank", "essay")
+            if typed and not options:
+                missing_labels = ["A"]      # câu Viết: một ô đáp án đúng
+            elif not typed and (len(options) < 2 or any(l > "C" for l in existing)):
+                missing_labels = [l for l in "ABCDEF" if l not in existing]
+
+            if request.method == "POST":
+                question_text = request.form.get("question_text", "").strip()
+                correct_label = request.form.get("correct_label", "").strip()
+
+                try:
+                    points = float(request.form.get("points", "0"))
+                    if points < 0:
+                        raise ValueError
+                except ValueError:
+                    flash("Điểm phải là số không âm.", "error")
+                    return redirect(url_for(
+                        "teacher_questions.edit_question",
+                        question_id=question_id
+                    ))
+
+                if typed:
+                    # câu Viết: có nhập đáp án thì đáp án A là đáp án đúng
+                    answer = (request.form.get(f"option_{options[0]['id']}", "") if options
+                              else request.form.get("new_option_A", "")).strip()
+                    correct_label = "A" if answer else ""
+
+                valid_labels = existing | set(missing_labels)
+                if correct_label and correct_label not in valid_labels:
+                    flash("Đáp án đúng không hợp lệ.", "error")
+                    return redirect(url_for(
+                        "teacher_questions.edit_question",
+                        question_id=question_id
+                    ))
+
+                cursor.execute("""
+                    UPDATE questions
+                    SET question_text = %s, points = %s
+                    WHERE id = %s
+                """, (question_text, points, question_id))
+
+                for option in options:
+                    new_text = request.form.get(
+                        f"option_{option['id']}", ""
+                    ).strip()
+
+                    cursor.execute("""
+                        UPDATE answer_options
+                        SET option_text = %s, is_correct = %s
+                        WHERE id = %s
+                    """, (
+                        new_text,
+                        option["option_label"] == correct_label,
+                        option["id"]
+                    ))
+
+                for label in missing_labels:
+                    new_text = request.form.get(f"new_option_{label}", "").strip()
+                    if not new_text and label != correct_label:
+                        continue  # bỏ trống thì không tạo
+                    cursor.execute("""
+                        INSERT INTO answer_options
+                            (question_id, option_label, option_text, is_correct)
+                        VALUES (%s, %s, %s, %s)
+                    """, (question_id, label, new_text, label == correct_label))
+
+                connection.commit()
+                flash(f"Đã lưu câu {question['sort_order']}.", "success")
+
+                return redirect(url_for(
+                    "teacher_questions.section_questions",
+                    section_id=question["section_id"]
+                ) + f"#q{question_id}")
+
+        return render_template(
+            "teacher/edit_question.html",
+            question=question,
+            options=options,
+            missing_labels=missing_labels,
+            typed=typed
+        )
+
+    except HTTPException:
+        if connection:
+            connection.rollback()
+        raise
+
+    except Exception:
+        if connection:
+            connection.rollback()
+        current_app.logger.exception("Cannot edit question")
+        flash("Không thể lưu câu hỏi.", "error")
+        return redirect(url_for("dashboard"))
+
+    finally:
+        if connection:
+            connection.close()
+
+
+# ==========================================
+# NHẬP NHANH ĐÁP ÁN CẢ PHẦN THI
+# Ví dụ: "1✓ 2× 3✓ 6B 7C 11F" hoặc "21.A 22.B"
+# ==========================================
+from services.answer_key import parse_answer_key  # noqa: E402
+
+
+@teacher_questions_bp.route(
+    "/sections/<int:section_id>/answer-key",
+    methods=["POST"]
+)
+@role_required("teacher")
+def import_answer_key(section_id):
+    connection = None
+    back = url_for("teacher_questions.section_questions", section_id=section_id)
+
+    answers = parse_answer_key(request.form.get("answer_key", ""))
+
+    if not answers:
+        flash("Không đọc được đáp án nào. Ví dụ: 1✓ 2× 6B 7C", "error")
+        return redirect(back)
+
+    try:
+        connection = get_connection()
+
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                SELECT exam_sections.id
+                FROM exam_sections
+                JOIN exams ON exam_sections.exam_id = exams.id
+                WHERE exam_sections.id = %s AND exams.teacher_id = %s
+            """, (section_id, session.get("user_id")))
+
+            if not cursor.fetchone():
+                abort(404)
+
+            updated, skipped = 0, []
+
+            for number, label in sorted(answers.items()):
+                cursor.execute("""
+                    SELECT id
+                    FROM questions
+                    WHERE section_id = %s AND sort_order = %s
+                """, (section_id, number))
+                row = cursor.fetchone()
+
+                if not row:
+                    skipped.append(f"{number}{label}")
+                    continue
+
+                # Đáp án chưa có (OCR đọc thiếu) -> tạo mới, nội dung để trống
+                cursor.execute("""
+                    INSERT INTO answer_options
+                        (question_id, option_label, option_text, is_correct)
+                    VALUES (%s, %s, '', FALSE)
+                    ON CONFLICT (question_id, option_label) DO NOTHING
+                """, (row["id"], label))
+
+                cursor.execute("""
+                    UPDATE answer_options
+                    SET is_correct = (option_label = %s)
+                    WHERE question_id = %s
+                """, (label, row["id"]))
+                updated += 1
+
+        connection.commit()
+
+        flash(f"Đã cập nhật đáp án cho {updated} câu.", "success")
+        if skipped:
+            flash(
+                "Bỏ qua (không có số câu này trong phần thi): "
+                + ", ".join(skipped),
+                "error"
+            )
+
+    except HTTPException:
+        if connection:
+            connection.rollback()
+        raise
+
+    except Exception:
+        if connection:
+            connection.rollback()
+        current_app.logger.exception("Cannot import answer key")
+        flash("Không thể nhập đáp án.", "error")
+
+    finally:
+        if connection:
+            connection.close()
+
+    return redirect(back)

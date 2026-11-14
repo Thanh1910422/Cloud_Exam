@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{{ attempt.exam_title }} - HSK Exam{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<div class="exam-page">
+    <div class="exam-timer" id="timer-bar">
+        <span>{{ attempt.exam_title }}</span>
+        <span>Còn lại: <span class="time" id="timer">--:--</span></span>
+    </div>
+
+    <form method="POST" id="exam-form"
+          action="{{ url_for('student_exam.submit_exam', attempt_id=attempt.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {% for section in sections %}
+            <h2 class="section-title">{{ section.section_title }}</h2>
+
+            {% if section.section_type == 'listening' %}
+                <div class="exam-card">
+                    {% if audio_url %}
+                        <p><strong>🎧 File nghe</strong></p>
+                        <audio controls preload="auto" src="{{ audio_url }}" style="width:100%;"></audio>
+                    {% else %}
+                        <p class="exam-meta">Đề này chưa có file nghe.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% for q in section.questions %}
+            <div class="exam-card question-block" id="cau-{{ q.sort_order }}">
+                <div class="question-number">Câu {{ q.sort_order }}</div>
+
+                {% if q.question_text %}<div class="question-text">{{ q.question_text }}</div>{% endif %}
+                {% if q.image_url %}<img class="question-image" src="{{ q.image_url }}" alt="Câu {{ q.sort_order }}">{% endif %}
+                {% if q.audio_url %}<audio controls src="{{ q.audio_url }}"></audio>{% endif %}
+
+                {% if q.question_type == 'essay' %}
+                    <textarea name="q_{{ q.id }}" rows="6" style="width:100%;" class="typed-answer"
+                              placeholder="Viết bài của bạn ở đây"></textarea>
+                {% elif q.question_type == 'fill_blank' %}
+                    <input type="text" name="q_{{ q.id }}" class="typed-answer" autocomplete="off"
+                           lang="zh" placeholder="Gõ đáp án bằng chữ Hán">
+                {% else %}
+                    <div class="option-grid">
+                        {% for o in q.options %}
+                        <label class="option-choice">
+                            <input type="radio" name="q_{{ q.id }}" value="{{ o.id }}">
+                            <strong>{{ o.option_label }}</strong>
+                            {% if o.option_image_url %}<img src="{{ o.option_image_url }}" alt="{{ o.option_label }}" loading="lazy">{% endif %}
+                            {% if o.option_text %}<div>{{ o.option_text }}</div>{% endif %}
+                        </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="exam-card" style="text-align:center;">
+            <p id="unanswered" class="exam-meta"></p>
+            <button type="submit" class="btn-primary" style="border:none; cursor:pointer; font-size:18px;">
+                Nộp bài
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+    var remaining = {{ remaining_seconds }};
+    var form = document.getElementById("exam-form");
+    var timer = document.getElementById("timer");
+    var bar = document.getElementById("timer-bar");
+    var storageKey = "hsk_attempt_{{ attempt.id }}";
+    var submitting = false;
+
+    // Giữ lại lựa chọn nếu lỡ tải lại trang
+    try {
+        var saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        Object.keys(saved).forEach(function (name) {
+            var typed = form.querySelector('.typed-answer[name="' + name + '"]');
+            if (typed) { typed.value = saved[name]; return; }
+            var input = form.querySelector('input[name="' + name + '"][value="' + saved[name] + '"]');
+            if (input) input.checked = true;
+        });
+    } catch (e) {}
+
+    function remember(event) {
+        if (event.target.type !== "radio" && !event.target.classList.contains("typed-answer")) return;
+        try {
+            var saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+            saved[event.target.name] = event.target.value;
+            localStorage.setItem(storageKey, JSON.stringify(saved));
+        } catch (e) {}
+    }
+    form.addEventListener("change", remember);
+    form.addEventListener("input", remember);
+
+    function countUnanswered() {
+        var names = {};
+        form.querySelectorAll('input[type="radio"]').forEach(function (i) { names[i.name] = names[i.name] || i.checked; });
+        form.querySelectorAll(".typed-answer").forEach(function (i) { names[i.name] = i.value.trim() !== ""; });
+        return Object.keys(names).filter(function (n) { return !names[n]; }).length;
+    }
+
+    form.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && event.target.tagName === "INPUT") event.preventDefault();
+    });
+
+    form.addEventListener("submit", function (event) {
+        if (submitting) return;
+        var missing = countUnanswered();
+        var message = missing > 0
+            ? "Bạn còn " + missing + " câu chưa làm. Vẫn nộp bài?"
+            : "Bạn chắc chắn muốn nộp bài?";
+        if (remaining > 0 && !window.confirm(message)) {
+            event.preventDefault();
+            return;
+        }
+        submitting = true;
+        try { localStorage.removeItem(storageKey); } catch (e) {}
+    });
+
+    function tick() {
+        var m = Math.floor(remaining / 60);
+        var s = remaining % 60;
+        timer.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+        if (remaining <= 300) bar.classList.add("warning");
+
+        if (remaining <= 0) {
+            timer.textContent = "00:00";
+            if (!submitting) {
+                submitting = true;
+                try { localStorage.removeItem(storageKey); } catch (e) {}
+                form.submit();   // hết giờ -> tự nộp
+            }
+            return;
+        }
+        remaining -= 1;
+        setTimeout(tick, 1000);
+    }
+    tick();
+})();
+</script>
+{% endblock %}
