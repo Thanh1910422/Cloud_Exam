@@ -1,0 +1,7 @@
+# Thư viện cho các SCRIPT chạy trên máy (tạo đề tự động, đọc PDF, OCR).
+# Cài trên máy: pip install -r requirements.txt -r requirements-tools.txt
+pymupdf
+python-docx
+pytesseract
+opencv-python
+pillow

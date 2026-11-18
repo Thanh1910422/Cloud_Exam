@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS answer_options (
         ON DELETE CASCADE,
     option_label VARCHAR(5) NOT NULL,
     option_text TEXT NOT NULL,
+    option_image_url TEXT,
     is_correct BOOLEAN DEFAULT FALSE,
     UNIQUE(question_id, option_label)
 );
