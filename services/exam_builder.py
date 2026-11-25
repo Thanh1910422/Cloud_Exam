@@ -220,26 +220,75 @@ def order_images(images, ignore_pages=()):
     return ordered
 
 
-def assign_images(parts, ordered):
+def plan_examples(parts, ordered):
+    """
+    Số ảnh ví dụ ở đầu mỗi phần có thể khác nhau giữa các đề (vd đề này 1 ví dụ, đề kia 2).
+    Thử các cách chia gần với cấu hình, giữ cách nào:
+      1) dùng đúng tổng số ảnh của PDF,
+      2) có nhiều phần bắt đầu ở ĐẦU TRANG nhất (đề HSK luôn như vậy),
+      3) lệch ít nhất so với cấu hình.
+    Trả về danh sách số ảnh ví dụ cho từng phần, hoặc None nếu không cách nào khớp.
+    """
+    from itertools import product
+
+    image_parts = [i for i, p in enumerate(parts) if images_needed(p) > 0]
+    default = [p.get("example_images", 0) for p in parts]
+    first_on_page = set()
+    for i, img in enumerate(ordered):
+        if i == 0 or ordered[i - 1]["page"] != img["page"]:
+            first_on_page.add(i)
+
+    choices = [range(0, max(default[i], 1) + 2) for i in image_parts]
+    best, best_score = None, None
+    for combo in product(*choices):
+        examples = list(default)
+        for i, value in zip(image_parts, combo):
+            examples[i] = value
+        if sum(examples[i] + images_needed(parts[i]) for i in range(len(parts))) != len(ordered):
+            continue
+        cursor, aligned = 0, 0
+        for i in image_parts:
+            if cursor in first_on_page:
+                aligned += 1
+            cursor += examples[i] + images_needed(parts[i])
+        changed = sum(abs(examples[i] - default[i]) for i in image_parts)
+        score = (aligned, -changed)
+        if best_score is None or score > best_score:
+            best, best_score = examples, score
+    return best
+
+
+def assign_images(parts, ordered, notes=None):
     """
     Lần lượt lấy ảnh cho từng phần. Trả về {số câu: {"question": img | None, "options": {nhãn: img}}}.
-    Báo lỗi rõ ràng nếu tổng số ảnh không khớp cấu hình.
+    Số ảnh ví dụ được tự điều chỉnh nếu đề khác cấu hình; báo lỗi rõ ràng nếu không thể khớp.
     """
-    expected = sum(p.get("example_images", 0) + images_needed(p) for p in parts)
+    examples = [p.get("example_images", 0) for p in parts]
+    expected = sum(examples[i] + images_needed(p) for i, p in enumerate(parts))
+
     if expected != len(ordered):
-        per_page = {}
-        for img in ordered:
-            per_page[img["page"]] = per_page.get(img["page"], 0) + 1
-        raise BuildError(
-            f"Số ảnh không khớp: cấu hình cần {expected} ảnh (gồm ảnh ví dụ) "
-            f"nhưng PDF có {len(ordered)} ảnh. Ảnh theo trang: {per_page}. "
-            f"Hãy kiểm tra example_images / ignore_pages trong file cấu hình cấp độ."
-        )
+        adjusted = plan_examples(parts, ordered)
+        if adjusted is None:
+            per_page = {}
+            for img in ordered:
+                per_page[img["page"]] = per_page.get(img["page"], 0) + 1
+            raise BuildError(
+                f"Số ảnh không khớp: cấu hình cần {expected} ảnh (gồm ảnh ví dụ) "
+                f"nhưng PDF có {len(ordered)} ảnh. Ảnh theo trang: {per_page}. "
+                f"Hãy kiểm tra example_images / ignore_pages trong file cấu hình cấp độ."
+            )
+        for part, old, new in zip(parts, examples, adjusted):
+            if old != new and notes is not None:
+                notes.append(
+                    f"Câu {part['from']}-{part['to']}: đề này có {new} ảnh ví dụ "
+                    f"(cấu hình mặc định {old}) — đã tự điều chỉnh, nên kiểm tra lại tranh."
+                )
+        examples = adjusted
 
     result = {}
     cursor = 0
-    for part in parts:
-        cursor += part.get("example_images", 0)
+    for part, example_count in zip(parts, examples):
+        cursor += example_count
         numbers = range(part["from"], part["to"] + 1)
         kind = part["kind"]
 
@@ -438,7 +487,8 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
     parts = level_cfg["parts"]
     ignore = pages_to_ignore(level_cfg, pages)
 
-    image_map = assign_images(parts, order_images(images, ignore))
+    image_notes = []
+    image_map = assign_images(parts, order_images(images, ignore), image_notes)
 
     lines = document_lines(pages, ignore)
     first = min(p["from"] for p in parts)
@@ -605,6 +655,12 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
 
     if skipped:
         print(f"Bỏ qua phần không có trong PDF: câu {', '.join(skipped)}")
+
+    for note in image_notes:
+        print(note)
+        first = int(re.match(r"Câu (\d+)", note).group(1))
+        if first in questions:
+            questions[first]["review_notes"].append(note)
 
     apply_fixes(questions, fixes or {})
     apply_answers(questions, answers or {})
