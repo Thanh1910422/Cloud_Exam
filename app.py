@@ -1,18 +1,12 @@
-
 import os
-from routes.teacher_questions import teacher_questions_bp
-from routes.student_exams import student_exam_bp          # ← thêm dòng này
-from routes.student_exams import student_exam_bp
-from routes.media import media_bp 
-from routes.media import media_bp
-from routes.teacher_grading import teacher_grading_bp   
 from flask import (
     Flask,
     render_template,
     jsonify,
     session,
     redirect,
-    url_for
+    url_for,
+    flash
 )
 from dotenv import load_dotenv
 from flask_wtf.csrf import CSRFProtect
@@ -21,6 +15,11 @@ from routes.auth import auth_bp
 from routes.admin import admin_bp
 from routes.exams import exam_bp
 from routes.teacher_questions import teacher_questions_bp
+from routes.student_exams import student_exam_bp
+from routes.media import media_bp
+from routes.teacher_grading import teacher_grading_bp
+from routes.statistics import statistics_bp
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -29,6 +28,7 @@ secret_key = os.getenv("SECRET_KEY")
 
 if not secret_key:
     raise RuntimeError("Chưa cấu hình SECRET_KEY trong file .env")
+
 app.config["SECRET_KEY"] = secret_key
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -39,16 +39,18 @@ app.config["SESSION_COOKIE_SECURE"] = (
 # Bật bảo vệ CSRF
 csrf = CSRFProtect(app)
 
-# Đăng ký nhóm đường dẫn đăng nhập, đăng ký, đăng xuất
+# Đăng ký các nhóm đường dẫn (MỖI DÒNG CHỈ ĐƯỢC CÓ MỘT LẦN)
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(exam_bp)
 app.register_blueprint(teacher_exam_bp)
 app.register_blueprint(teacher_questions_bp)
-app.register_blueprint(student_exam_bp)  
+app.register_blueprint(student_exam_bp)
 app.register_blueprint(media_bp)
-app.register_blueprint(media_bp)
-app.register_blueprint(teacher_grading_bp)  
+app.register_blueprint(teacher_grading_bp)
+app.register_blueprint(statistics_bp)
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -57,7 +59,6 @@ def index():
 @app.route("/dashboard")
 def dashboard():
     if not session.get("user_id"):
-        from flask import flash
         flash("Vui lòng đăng nhập để tiếp tục.", "error")
         return redirect(url_for("auth.login"))
 

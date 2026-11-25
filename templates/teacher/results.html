@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Kết quả học viên - HSK Exam{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stats.css') }}">
+<div class="stats-page">
+    <p><a href="{{ url_for('dashboard') }}">← Dashboard</a></p>
+    <div class="stats-head">
+        <h2>Kết quả học viên</h2>
+        {% include "partials/stats_filter.html" %}
+    </div>
+    <p class="stats-note">Chỉ tính các đề thi bạn phụ trách.</p>
+    <br>
+    {% set show_teacher = false %}
+    {% include "partials/stats_results.html" %}
+</div>
+{% endblock %}

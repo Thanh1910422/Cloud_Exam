@@ -1,0 +1,5 @@
+<div class="stats-filter" role="group" aria-label="Khoảng thời gian">
+    {% for key, label in [('7', '7 ngày'), ('30', '30 ngày'), ('90', '90 ngày'), ('all', 'Tất cả')] %}
+    <a href="?period={{ key }}" class="{{ 'active' if period == key else '' }}">{{ label }}</a>
+    {% endfor %}
+</div>

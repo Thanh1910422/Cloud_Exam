@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Thống kê hệ thống - HSK Exam{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stats.css') }}">
+<div class="stats-page">
+    <p><a href="{{ url_for('dashboard') }}">← Dashboard</a></p>
+    <div class="stats-head">
+        <h2>Thống kê hệ thống</h2>
+        {% include "partials/stats_filter.html" %}
+    </div>
+    <p class="stats-note">Số liệu “mới” và kết quả thi tính trong khoảng thời gian đã chọn; tổng số tài khoản tính toàn bộ.</p>
+
+    <!-- ========== TÀI KHOẢN ========== -->
+    <h2 class="stats-section-title">Tài khoản đăng ký</h2>
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi-label">Học viên</div>
+            <div class="kpi-value">{{ accounts.student.total }}</div>
+            <div class="kpi-sub">+{{ accounts.student.new_in_period }} mới · {{ accounts.student.active }} đang hoạt động</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Giảng viên</div>
+            <div class="kpi-value">{{ accounts.teacher.total }}</div>
+            <div class="kpi-sub">+{{ accounts.teacher.new_in_period }} mới · {{ accounts.teacher.active }} đang hoạt động</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Quản trị viên</div>
+            <div class="kpi-value">{{ accounts.admin.total }}</div>
+            <div class="kpi-sub">{{ accounts.admin.active }} đang hoạt động</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Đề thi</div>
+            <div class="kpi-value">{{ exam_counts.total }}</div>
+            <div class="kpi-sub">{{ exam_counts.published }} xuất bản · {{ exam_counts.draft }} bản nháp</div>
+        </div>
+    </div>
+
+    <div class="stats-card" style="margin-top:16px;">
+        <h3>Học viên đăng ký mới theo ngày</h3>
+        <p class="stats-note">{{ registrations | length }} ngày gần nhất (giờ Việt Nam). Rê chuột vào cột để xem số liệu.</p>
+        {% set reg_max = (registrations | map(attribute='registrations') | max) or 1 %}
+        <div class="bar-chart" role="img" aria-label="Số học viên đăng ký mỗi ngày">
+            <span class="chart-max">tối đa {{ reg_max }}</span>
+            {% for r in registrations %}
+            <div class="bar-col">
+                <span class="bar-tip">{{ r.day.strftime('%d/%m') }}: {{ r.registrations }} học viên</span>
+                <div class="bar" style="height: {{ (r.registrations / reg_max * 100) | round(1) }}%;"></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% set step = ((registrations | length) // 6) or 1 %}
+        <div class="bar-axis sparse">
+            {% for r in registrations %}
+            <span class="{{ 'show' if loop.index0 % step == 0 or loop.last else '' }}">{{ r.day.strftime('%d/%m') }}</span>
+            {% endfor %}
+        </div>
+        <details class="table-toggle">
+            <summary>Xem dạng bảng</summary>
+            <table class="stats-table">
+                <thead><tr><th>Ngày</th><th class="num">Học viên đăng ký</th></tr></thead>
+                <tbody>
+                    {% for r in registrations | reverse if r.registrations %}
+                    <tr><td>{{ r.day.strftime('%d/%m/%Y') }}</td><td class="num">{{ r.registrations }}</td></tr>
+                    {% else %}
+                    <tr><td colspan="2">Không có đăng ký mới trong khoảng này.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </details>
+    </div>
+
+    <div class="stats-card">
+        <h3>Tài khoản mới nhất</h3>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th class="num">Lượt thi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in recent_accounts %}
+                <tr>
+                    <td>{{ u.full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ {'student': 'Học viên', 'teacher': 'Giảng viên', 'admin': 'Quản trị'}.get(u.role_name, u.role_name) }}</td>
+                    <td>{% if u.is_active %}<span class="pill pill-on">Hoạt động</span>{% else %}<span class="pill pill-off">Đã khóa</span>{% endif %}</td>
+                    <td>{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '' }}</td>
+                    <td class="num">{{ u.attempts if u.role_name == 'student' else '–' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== GIẢNG VIÊN ========== -->
+    <h2 class="stats-section-title">Giảng viên</h2>
+    <div class="stats-card">
+        <p class="stats-note">Lượt thi, điểm và tỉ lệ đạt tính trên các đề giảng viên phụ trách, trong khoảng thời gian đã chọn.</p>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Giảng viên</th>
+                    <th>Trạng thái</th>
+                    <th class="num">Đề phụ trách</th>
+                    <th class="num">Đã xuất bản</th>
+                    <th class="num">Câu hỏi</th>
+                    <th class="num">Lượt thi</th>
+                    <th class="num">Học viên</th>
+                    <th class="num">Điểm TB</th>
+                    <th class="num">Tỉ lệ đạt</th>
+                    <th class="num">Chờ chấm</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in teachers %}
+                <tr>
+                    <td>{{ t.full_name }}<br><span class="stats-note">{{ t.email }}</span></td>
+                    <td>{% if t.is_active %}<span class="pill pill-on">Hoạt động</span>{% else %}<span class="pill pill-off">Đã khóa</span>{% endif %}</td>
+                    <td class="num">{{ t.exams_total }}</td>
+                    <td class="num">{{ t.exams_published }}</td>
+                    <td class="num">{{ t.questions }}</td>
+                    <td class="num">{{ t.attempts }}</td>
+                    <td class="num">{{ t.students }}</td>
+                    <td class="num">{{ (t.avg_percent ~ '%') if t.avg_percent is not none else '–' }}</td>
+                    <td class="num">{{ (t.pass_rate ~ '%') if t.pass_rate is not none else '–' }}</td>
+                    <td class="num">{{ t.pending_grading }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="10">Chưa có giảng viên nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== KẾT QUẢ THI ========== -->
+    <h2 class="stats-section-title">Kết quả thi</h2>
+    {% set show_teacher = true %}
+    {% include "partials/stats_results.html" %}
+</div>
+{% endblock %}

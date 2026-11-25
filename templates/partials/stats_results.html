@@ -1,0 +1,127 @@
+{# Phần "Kết quả thi" dùng chung cho admin và giáo viên.
+   Cần: results, exam_counts, exams, distribution, hardest, show_teacher #}
+<div class="kpi-row">
+    <div class="kpi">
+        <div class="kpi-label">Lượt thi đã nộp</div>
+        <div class="kpi-value">{{ results.attempts }}</div>
+        <div class="kpi-sub">{{ results.students }} học viên khác nhau</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">Điểm trung bình</div>
+        <div class="kpi-value">{{ results.avg_percent if results.avg_percent is not none else '–' }}{% if results.avg_percent is not none %}%{% endif %}</div>
+        <div class="kpi-sub">tính theo % điểm tối đa của từng đề</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">Tỉ lệ đạt (≥ 60%)</div>
+        <div class="kpi-value">{{ results.pass_rate if results.pass_rate is not none else '–' }}{% if results.pass_rate is not none %}%{% endif %}</div>
+        <div class="kpi-sub">HSK1–2: 120/200 · HSK3–6: 180/300</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">Bài viết chờ chấm</div>
+        <div class="kpi-value">{{ results.pending_grading }}</div>
+        <div class="kpi-sub">{{ exam_counts.published }}/{{ exam_counts.total }} đề đang xuất bản</div>
+    </div>
+</div>
+
+<div class="stats-card" style="margin-top:16px;">
+    <h3>Phân bố điểm</h3>
+    <p class="stats-note">Số lượt thi theo khoảng % điểm. Từ 60% trở lên là đạt. Rê chuột vào cột để xem số liệu.</p>
+    {% set dist_max = (distribution | map(attribute='attempts') | max) or 1 %}
+    <div class="bar-chart" role="img" aria-label="Phân bố điểm theo khoảng phần trăm">
+        {% for d in distribution %}
+        <div class="bar-col {% if loop.index0 == 6 %}pass-line{% endif %}">
+            <span class="bar-tip">{{ d.label }}: {{ d.attempts }} lượt{{ ' · đạt' if d.passing else '' }}</span>
+            {% if d.attempts %}<span class="bar-value">{{ d.attempts }}</span>{% endif %}
+            <div class="bar" style="height: {{ (d.attempts / dist_max * 100) | round(1) }}%;"></div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="bar-axis">
+        {% for d in distribution %}<span>{{ d.label }}</span>{% endfor %}
+    </div>
+</div>
+
+<div class="stats-card">
+    <h3>Theo từng đề thi</h3>
+    <p class="stats-note">Điểm trung bình từng phần và tỉ lệ đạt. Đề chưa có lượt thi hiện dấu “–”.</p>
+    <table class="stats-table">
+        <thead>
+            <tr>
+                <th>Đề thi</th>
+                <th>Cấp</th>
+                {% if show_teacher %}<th>Giảng viên</th>{% endif %}
+                <th>Trạng thái</th>
+                <th class="num">Lượt thi</th>
+                <th class="num">Học viên</th>
+                <th class="num">Nghe TB</th>
+                <th class="num">Đọc TB</th>
+                <th class="num">Viết TB</th>
+                <th class="num">Tổng TB</th>
+                <th class="num">Cao nhất</th>
+                <th class="num">Tỉ lệ đạt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in exams %}
+            <tr>
+                <td>{{ e.title }}</td>
+                <td>{{ e.level_name }}</td>
+                {% if show_teacher %}<td>{{ e.teacher_name or '(chưa phân công)' }}</td>{% endif %}
+                <td>
+                    {% if e.status == 'published' %}<span class="pill pill-on">Đã xuất bản</span>
+                    {% elif e.status == 'draft' %}<span class="pill">Bản nháp</span>
+                    {% else %}<span class="pill">Lưu trữ</span>{% endif %}
+                </td>
+                <td class="num">{{ e.attempts }}</td>
+                <td class="num">{{ e.students }}</td>
+                {% if e.attempts %}
+                <td class="num">{{ e.avg_listening }}</td>
+                <td class="num">{{ e.avg_reading }}</td>
+                <td class="num">{{ e.avg_writing if e.has_writing else '–' }}</td>
+                <td class="num"><strong>{{ e.avg_total }}</strong> / {{ e.max_score | int if e.max_score else '?' }}</td>
+                <td class="num">{{ e.best }}</td>
+                <td class="num">{{ e.pass_rate }}%<span class="meter"><span style="width: {{ e.pass_rate }}%"></span></span></td>
+                {% else %}
+                <td class="num">–</td><td class="num">–</td><td class="num">–</td>
+                <td class="num">–</td><td class="num">–</td><td class="num">–</td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr><td colspan="12">Chưa có đề thi nào.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="stats-card">
+    <h3>Câu hỏi khó nhất</h3>
+    <p class="stats-note">10 câu có tỉ lệ làm đúng thấp nhất (chỉ tính câu máy chấm đã có đáp án, có ít nhất 3 lượt trả lời) — gợi ý nội dung cần ôn thêm.</p>
+    {% if hardest %}
+    <table class="stats-table">
+        <thead>
+            <tr>
+                <th>Đề thi</th>
+                <th class="num">Câu</th>
+                <th>Phần</th>
+                <th>Nội dung</th>
+                <th class="num">Lượt trả lời</th>
+                <th class="num">Tỉ lệ đúng</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in hardest %}
+            <tr>
+                <td>{{ h.exam_title }}</td>
+                <td class="num">{{ h.sort_order }}</td>
+                <td>{{ {'listening': 'Nghe', 'reading': 'Đọc', 'writing': 'Viết'}.get(h.section_type, h.section_type) }}</td>
+                <td class="wrap">{{ h.question_text or '(câu nghe – không có chữ)' }}</td>
+                <td class="num">{{ h.answers }}</td>
+                <td class="num">{{ h.correct_rate }}%<span class="meter"><span style="width: {{ h.correct_rate }}%"></span></span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Chưa đủ dữ liệu (mỗi câu cần ít nhất 3 lượt trả lời).</p>
+    {% endif %}
+</div>
