@@ -29,8 +29,12 @@
         <div class="feature-card">
             <div class="feature-icon">📋</div>
             <h3>Quản lý câu hỏi</h3>
-            <p>Thêm câu hỏi Nghe, Đọc và Viết vào từng đề thi.</p>
-            <span>Đang phát triển</span>
+            <p>Xem, sửa câu hỏi và nhập đáp án: chọn đề thi → "Quản lý câu hỏi" ở từng phần thi.</p>
+
+            <a href="{{ url_for('teacher_exam.exams') }}"
+               class="btn btn-primary">
+                Chọn đề thi
+            </a>
         </div>
 
         <!-- Chấm bài viết -->
@@ -38,7 +42,11 @@
             <div class="feature-icon">✍️</div>
             <h3>Chấm bài viết</h3>
             <p>Đánh giá và nhận xét bài viết của học viên.</p>
-            <span>Đang phát triển</span>
+
+            <a href="{{ url_for('teacher_grading.pending') }}"
+               class="btn btn-primary">
+                Vào chấm bài
+            </a>
         </div>
 
     </div>

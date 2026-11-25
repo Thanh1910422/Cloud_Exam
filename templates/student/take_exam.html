@@ -38,10 +38,15 @@
 
                 {% if q.question_type == 'essay' %}
                     <textarea name="q_{{ q.id }}" rows="6" style="width:100%;" class="typed-answer"
-                              placeholder="Viết bài của bạn ở đây"></textarea>
+                              lang="zh" placeholder="Viết câu / bài của bạn bằng chữ Hán"></textarea>
                 {% elif q.question_type == 'fill_blank' %}
+                    {% if 'Gõ thứ tự' in q.question_text %}
+                    <input type="text" name="q_{{ q.id }}" class="typed-answer" autocomplete="off"
+                           maxlength="10" placeholder="Thứ tự các câu, ví dụ: BAC" style="text-transform:uppercase;">
+                    {% else %}
                     <input type="text" name="q_{{ q.id }}" class="typed-answer" autocomplete="off"
                            lang="zh" placeholder="Gõ đáp án bằng chữ Hán">
+                    {% endif %}
                 {% else %}
                     <div class="option-grid">
                         {% for o in q.options %}

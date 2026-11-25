@@ -43,7 +43,7 @@
     </div>
 
     {% if attempt.status == 'submitted' %}
-        <div class="exam-card">Phần viết đang chờ giáo viên chấm.</div>
+        <div class="exam-card">Phần viết tự luận đang chờ giáo viên chấm — điểm Viết và tổng điểm sẽ cập nhật sau khi chấm.</div>
     {% endif %}
 
     {% for section in sections %}
@@ -54,10 +54,12 @@
         <div class="exam-card">
             <div class="question-number">
                 Câu {{ q.sort_order }}
-                {% if ans and ans.is_correct %}
-                    <span class="badge-ok">✓ Đúng</span>
+                {% if q.question_type == 'essay' and ans and ans.teacher_graded %}
+                    <span class="badge-ok">Giáo viên chấm: {{ ans.awarded_points }} / {{ q.points }} điểm</span>
                 {% elif q.question_type == 'essay' and ans and ans.answer_text %}
                     <span class="exam-meta">Chờ giáo viên chấm</span>
+                {% elif ans and ans.is_correct %}
+                    <span class="badge-ok">✓ Đúng</span>
                 {% elif ans and (ans.selected_option_id or ans.answer_text) %}
                     <span class="badge-bad">✗ Sai</span>
                 {% else %}
@@ -71,8 +73,11 @@
             {% if q.question_type in ('fill_blank', 'essay') %}
                 <p>Bài của bạn: <strong>{{ ans.answer_text if ans and ans.answer_text else '(bỏ trống)' }}</strong></p>
                 {% for o in q.options if o.is_correct and o.option_text %}
-                    <p class="badge-ok">Đáp án: {{ o.option_text }}</p>
+                    <p class="badge-ok">{{ 'Đáp án tham khảo' if q.question_type == 'essay' else 'Đáp án' }}: {{ o.option_text }}</p>
                 {% endfor %}
+                {% if ans and ans.feedback %}
+                    <p>💬 Nhận xét của giáo viên: {{ ans.feedback }}</p>
+                {% endif %}
             {% else %}
             <div class="option-grid">
                 {% for o in q.options %}

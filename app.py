@@ -3,7 +3,9 @@ import os
 from routes.teacher_questions import teacher_questions_bp
 from routes.student_exams import student_exam_bp          # ← thêm dòng này
 from routes.student_exams import student_exam_bp
-from routes.media import media_bp   
+from routes.media import media_bp 
+from routes.media import media_bp
+from routes.teacher_grading import teacher_grading_bp   
 from flask import (
     Flask,
     render_template,
@@ -44,7 +46,9 @@ app.register_blueprint(exam_bp)
 app.register_blueprint(teacher_exam_bp)
 app.register_blueprint(teacher_questions_bp)
 app.register_blueprint(student_exam_bp)  
-app.register_blueprint(media_bp) 
+app.register_blueprint(media_bp)
+app.register_blueprint(media_bp)
+app.register_blueprint(teacher_grading_bp)  
 @app.route("/")
 def index():
     return render_template("index.html")

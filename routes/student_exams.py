@@ -138,7 +138,7 @@ def get_listening_audio_url(cursor, exam_id):
 def normalize_answer(text):
     """Bỏ khoảng trắng và dấu câu để so sánh: '弟弟 高兴地笑了。' == '弟弟高兴地笑了'."""
     import re
-    return re.sub(r"[\s。．.，,！!？?、；;：:“”\"'（）()]", "", text or "")
+    return re.sub(r"[\s。．.，,！!？?、；;：:“”\"'（）()\-–—→>]", "", text or "").upper()
 
 
 def typed_answer_correct(answer_text, options):
@@ -501,10 +501,14 @@ def result(attempt_id):
             )
 
             cursor.execute("""
-                SELECT question_id, selected_option_id, answer_text,
-                       is_correct, awarded_points
+                SELECT student_answers.question_id, selected_option_id, answer_text,
+                       is_correct, awarded_points,
+                       writing_scores.id AS teacher_graded, writing_scores.feedback
                 FROM student_answers
-                WHERE attempt_id = %s
+                LEFT JOIN writing_scores
+                    ON writing_scores.attempt_id = student_answers.attempt_id
+                   AND writing_scores.question_id = student_answers.question_id
+                WHERE student_answers.attempt_id = %s
             """, (attempt_id,))
             answers = {row["question_id"]: row for row in cursor.fetchall()}
 

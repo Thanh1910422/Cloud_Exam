@@ -1,0 +1,22 @@
+{
+    "_huong_dan": "Cấu trúc đề HSK2 (kiểm chứng với đề H21334). Các trang trước trang có 第一部分 tự động bị bỏ qua. Điểm: Nghe 35 câu ≈ 100đ, Đọc 25 câu = 100đ.",
+    "level": 2,
+    "verified": true,
+    "ignore_pages": [],
+    "sections": {
+        "listening": {"title": "听力 - Nghe hiểu", "minutes": 25, "points": 100},
+        "reading":   {"title": "阅读 - Đọc hiểu", "minutes": 22, "points": 100}
+    },
+    "parts": [
+        {"section": "listening", "from": 1,  "to": 10, "kind": "image_true_false", "example_images": 2},
+        {"section": "listening", "from": 11, "to": 15, "kind": "shared_images",    "example_images": 0, "labels": "ABCDEF"},
+        {"section": "listening", "from": 16, "to": 20, "kind": "shared_images",    "example_images": 0, "labels": "ABCDE"},
+        {"section": "listening", "from": 21, "to": 30, "kind": "text_abc"},
+        {"section": "listening", "from": 31, "to": 35, "kind": "text_abc"},
+        {"section": "reading",   "from": 36, "to": 40, "kind": "shared_images",    "example_images": 0, "labels": "ABCDEF", "text": true},
+        {"section": "reading",   "from": 41, "to": 45, "kind": "shared_text",      "labels": "ABCDEF", "text": true},
+        {"section": "reading",   "from": 46, "to": 50, "kind": "text_true_false",  "text": true},
+        {"section": "reading",   "from": 51, "to": 55, "kind": "shared_text",      "labels": "ABCDEF", "text": true},
+        {"section": "reading",   "from": 56, "to": 60, "kind": "shared_text",      "labels": "ABCDE",  "text": true}
+    ]
+}

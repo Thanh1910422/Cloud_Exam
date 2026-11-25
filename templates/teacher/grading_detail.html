@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Chấm bài - {{ attempt.student_name }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<div class="exam-page">
+    <p><a href="{{ url_for('teacher_grading.pending') }}">← Danh sách bài cần chấm</a></p>
+    <h2>{{ attempt.exam_title }}</h2>
+    <p class="exam-meta">
+        Học viên: <strong>{{ attempt.student_name }}</strong> ({{ attempt.student_email }})
+        · Nghe {{ attempt.listening_score|int }} · Đọc {{ attempt.reading_score|int }}
+        · Viết {{ attempt.writing_score|int }} · Tổng {{ attempt.total_score|int }}
+    </p>
+    <br>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {% for e in essays %}
+        <div class="exam-card">
+            <div class="question-number">Câu {{ e.sort_order }} <span class="exam-meta">(tối đa {{ e.points }} điểm)</span></div>
+            {% if e.image_url %}<img class="question-image" src="{{ e.image_url }}" alt="">{% endif %}
+            {% if e.question_text %}<div class="question-text">{{ e.question_text }}</div>{% endif %}
+
+            <p>Bài của học viên:</p>
+            <div class="exam-card" style="background:#f8fafc; font-size:20px; white-space:pre-line;">{{ e.answer_text or '(bỏ trống)' }}</div>
+
+            {% if e.reference_answer %}
+                <p class="exam-meta">Đáp án tham khảo: {{ e.reference_answer }}</p>
+            {% endif %}
+
+            <label>Điểm:
+                <input type="number" name="score_{{ e.id }}" min="0" max="{{ e.points }}" step="0.01"
+                       value="{{ e.score if e.score is not none else ('0' if not e.answer_text else '') }}"
+                       style="width:100px; padding:6px; font-size:16px;">
+            </label>
+            <br><br>
+            <label>Nhận xét (không bắt buộc):
+                <textarea name="feedback_{{ e.id }}" rows="2" style="width:100%;">{{ e.feedback or '' }}</textarea>
+            </label>
+        </div>
+        {% else %}
+        <div class="exam-card">Đề thi này không có câu viết tự luận.</div>
+        {% endfor %}
+
+        {% if essays %}
+        <div style="text-align:center;">
+            <button type="submit" class="btn-primary" style="border:none; cursor:pointer; font-size:18px;">
+                Lưu điểm
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

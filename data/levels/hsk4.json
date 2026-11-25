@@ -1,0 +1,23 @@
+{
+    "_huong_dan": "Cấu trúc đề HSK4 - 100 câu (kiểm chứng với đề H41002). Nghe 45, Đọc 40, Viết 15; mỗi phần 100 điểm, tổng 300. Trang lời thoại (听力材料) và đáp án (答案) cuối file tự động bị bỏ qua; đáp án trong file được đọc tự động.",
+    "level": 4,
+    "verified": true,
+    "ignore_pages": [],
+    "sections": {
+        "listening": {"title": "听力 - Nghe hiểu", "minutes": 30, "points": 100},
+        "reading":   {"title": "阅读 - Đọc hiểu", "minutes": 40, "points": 100},
+        "writing":   {"title": "书写 - Viết",     "minutes": 25, "points": 100}
+    },
+    "parts": [
+        {"section": "listening", "from": 1,  "to": 10,  "kind": "text_true_false", "text": true},
+        {"section": "listening", "from": 11, "to": 25,  "kind": "text_abcd"},
+        {"section": "listening", "from": 26, "to": 45,  "kind": "text_abcd"},
+        {"section": "reading",   "from": 46, "to": 50,  "kind": "shared_text", "labels": "ABCDEF", "text": true},
+        {"section": "reading",   "from": 51, "to": 55,  "kind": "shared_text", "labels": "ABCDEF", "text": true},
+        {"section": "reading",   "from": 56, "to": 65,  "kind": "sort_sentences"},
+        {"section": "reading",   "from": 66, "to": 79,  "kind": "text_abcd", "text": true},
+        {"section": "reading",   "from": 80, "to": 85,  "kind": "passage_group", "labels": "ABCD"},
+        {"section": "writing",   "from": 86, "to": 95,  "kind": "arrange_words"},
+        {"section": "writing",   "from": 96, "to": 100, "kind": "picture_sentence", "example_images": 1}
+    ]
+}

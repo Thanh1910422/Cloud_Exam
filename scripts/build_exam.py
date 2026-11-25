@@ -35,6 +35,7 @@ from services.exam_builder import (  # noqa: E402
     build_questions,
     answers_from_text,
     text_answers_from_text,
+    embedded_answer_text,
     save_to_db,
     used_image_files,
 )
@@ -165,7 +166,7 @@ def print_summary(pages, questions):
         )
         mark = "⚠" if q["needs_review"] else "✓"
         answer = q["correct_answer"] or "?"
-        if q.get("question_type") == "fill_blank":
+        if q.get("question_type") in ("fill_blank", "essay"):
             answer = q["options"]["A"]["text"] or "?"
         log(
             f"{mark} Câu {q['question_number']:>2} [{q['section'][:6]}] "
@@ -265,6 +266,10 @@ def main():
                     data = get_storage().download(key["storage_path"])
                     key_text = file_text(data, key["original_filename"], args.ocr)
                     source = f"file '{key['original_filename']}'"
+            if key_text is None and not args.answers:
+                embedded = embedded_answer_text(pages)
+                if embedded:
+                    key_text, source = embedded, "trang đáp án trong file đề"
                 else:
                     log("Chưa có file đáp án -> giáo viên nhập đáp án sau trên app.")
             if key_text is not None:

@@ -30,7 +30,8 @@ TRUE_FALSE_OPTIONS = {"A": "对 (✓ Đúng)", "B": "错 (✗ Sai)"}
 
 CJK = re.compile(r"[一-鿿]")
 CJK_RUN = re.compile(r"^[一-鿿（）()，。？！、…“”：:\s]+")
-QUESTION_LINE = re.compile(r"^(\d{1,2})(?:\s*[.)、．]\s*(.*)|\s*)$")
+QUESTION_LINE = re.compile(r"^(\d{1,3})(?:\s*[.)、．]\s*(.*)|\s*)$")
+GROUP_LINE = re.compile(r"^(\d{1,3})\s*[-–—~]\s*(\d{1,3})\s*[.．、]\s*(.*)$")
 LATIN_ONLY = re.compile(
     r"^[A-Za-zÀ-ỹāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü\s,.?!'’，．。？！：:“”\-]+$"
 )
@@ -78,7 +79,7 @@ def section_points(level_cfg, questions):
 def images_needed(part):
     count = part["to"] - part["from"] + 1
     kind = part["kind"]
-    if kind == "image_true_false":
+    if kind in ("image_true_false", "picture_sentence"):
         return count
     if kind == "image_abc":
         return count * 3
@@ -172,13 +173,34 @@ def ocr_page(page):
 START_MARKER = re.compile(r"第\s*[一1]\s*部\s*分|第\s*1\s*[-–—~至]\s*\d+\s*题")
 
 
+TAIL_MARKER = re.compile(r"听力材料|卷\s*答\s*案|^\s*答\s*案\s*$", re.M)
+ANSWER_MARKER = re.compile(r"卷\s*答\s*案|^\s*答\s*案\s*$", re.M)
+
+
 def pages_to_ignore(level_cfg, pages):
-    """Bỏ qua các trang trước trang có '第一部分' (bìa, trang trống, logo) + ignore_pages."""
+    """
+    Bỏ qua: các trang trước trang có '第一部分' (bìa, logo), và từ trang
+    '听力材料' (lời thoại phần Nghe) / '答案' (đáp án) trở về sau, + ignore_pages.
+    """
     ignore = set(level_cfg.get("ignore_pages", []))
     start = next((p["page"] for p in pages if START_MARKER.search(p["text"])), None)
     if start:
         ignore |= {p["page"] for p in pages if p["page"] < start}
+        tail = next((p["page"] for p in pages
+                     if p["page"] > start and TAIL_MARKER.search(p["text"])), None)
+        if tail:
+            ignore |= {p["page"] for p in pages if p["page"] >= tail}
     return ignore
+
+
+def embedded_answer_text(pages):
+    """Chữ của các trang đáp án nằm ngay trong file đề (vd 'H41002 卷答案'), nếu có."""
+    start = next((i for i, p in enumerate(pages) if ANSWER_MARKER.search(p["text"])), None)
+    if start is None:
+        return ""
+    text = pages[start]["text"]
+    text = text[ANSWER_MARKER.search(text).start():]
+    return "\n".join([text] + [p["text"] for p in pages[start + 1:]])
 
 
 def order_images(images, ignore_pages=()):
@@ -221,7 +243,7 @@ def assign_images(parts, ordered):
         numbers = range(part["from"], part["to"] + 1)
         kind = part["kind"]
 
-        if kind == "image_true_false":
+        if kind in ("image_true_false", "picture_sentence"):
             for n in numbers:
                 result[n] = {"question": ordered[cursor], "options": {}}
                 cursor += 1
@@ -248,10 +270,29 @@ def document_lines(pages, ignore_pages=()):
         if page["page"] in ignore_pages:
             continue
         for raw in page["text"].splitlines():
-            line = raw.strip()
-            if line:
-                lines.append((page["page"], line))
+            for piece in re.split(r"\s{2,}(?=\d{1,3}\s*[．.]\s)", raw.strip()):
+                line = piece.strip()
+                if line:
+                    lines.append((page["page"], line))
     return lines
+
+
+BLOCK_STOP = re.compile(r"^(第.*(部分|题)|例如|[一二三四]、)")
+
+
+def block_after(lines, index, same_page=True):
+    """Mọi dòng chữ Hán sau dòng index cho tới câu / nhóm / phần tiếp theo."""
+    page = lines[index][0]
+    collected = []
+    for next_page, line in lines[index + 1:]:
+        if same_page and next_page != page:
+            break
+        if QUESTION_LINE.match(line) or GROUP_LINE.match(line) or BLOCK_STOP.match(line):
+            break
+        if LATIN_ONLY.match(line) or not CJK.search(line):
+            continue
+        collected.append(line)
+    return collected
 
 
 STOP_LINE = re.compile(r"^(第.*(部分|题)|例如|[A-F]\s+[\u4e00-\u9fff])")
@@ -262,12 +303,14 @@ def continuation(lines, index):
     page = lines[index][0]
     collected = []
     for next_page, line in lines[index + 1:]:
-        if next_page != page or QUESTION_LINE.match(line):
+        if next_page != page or QUESTION_LINE.match(line) or GROUP_LINE.match(line):
+            break
+        if re.match(r"^A\s", line) and re.search(r"\sB\s", line):
+            # dòng "A ...  B ...  C ..." ngay sau đoạn văn là đáp án của chính câu này
+            # (kể cả đáp án chỉ có số, vd "A 16   B 17   C 18   D 19")
+            collected.append(line)
             break
         if STOP_LINE.match(line):
-            # dòng "A ...  B ...  C ..." ngay sau đoạn văn là đáp án của chính câu này
-            if re.match(r"^A\s", line) and re.search(r"\sB\s", line):
-                collected.append(line)
             break
         if LATIN_ONLY.match(line) or not CJK.search(line):
             continue                      # bỏ pinyin, số trang
@@ -296,6 +339,7 @@ def find_question_lines(lines, first, last):
                     "index": index,
                     "text": (match.group(2) or "").strip(),
                     "more": continuation(lines, index),
+                    "block": block_after(lines, index),
                     "pinyin": previous if LATIN_ONLY.match(previous) else "",
                     "raw_text": line,
                 }
@@ -304,7 +348,35 @@ def find_question_lines(lines, first, last):
     return found
 
 
-CJK_PUNCT = "\u4e00-\u9fff，。？！、：；（）“”"
+def find_group_blocks(lines):
+    """{80: {"to": 81, "page": 12, "block": [...]}} cho các dòng '80-81．'."""
+    groups = {}
+    for index, (page, line) in enumerate(lines):
+        match = GROUP_LINE.match(line)
+        if match:
+            first, last = int(match.group(1)), int(match.group(2))
+            block = ([match.group(3)] if match.group(3).strip() else []) + \
+                block_after(lines, index, same_page=False)
+            groups.setdefault(first, {"to": last, "page": page, "block": block})
+    return groups
+
+
+def split_passage_group(block, count, labels):
+    """Đoạn văn + nhiều câu ★ (mỗi câu có dòng đáp án) -> [(câu hỏi, {đáp án})]."""
+    passage, items, current = [], [], None
+    for line in block:
+        if line.lstrip().startswith("★"):
+            current = {"question": line, "options": {}}
+            items.append(current)
+        elif current is not None and re.match(r"^A\s", line) and not current["options"]:
+            current["options"] = parse_inline_options(line, labels)
+        elif current is None:
+            passage.append(line)
+    text = "".join(clean_chinese(x) for x in passage)
+    return text, items[:count]
+
+
+CJK_PUNCT = "\u4e00-\u9fff，。？！、：；（）“”《》「」『』‘’…—"
 
 
 def clean_chinese(text):
@@ -318,7 +390,25 @@ def clean_chinese(text):
 
 def parse_inline_options(text, labels="ABC"):
     """'A 星期二   星期三   C 星期五' -> {A, B, C}; nhãn có thể bị OCR làm mất."""
-    text = re.sub(r"(^|\s)([A-F])\s+", r"\1\2 ", text.strip())
+    text = text.strip()
+    # Cách 1: đủ các nhãn A, B, C(, D) theo đúng thứ tự trong dòng
+    positions, start = [], 0
+    for label in labels:
+        m = re.compile(rf"(?:^|\s){label}\s+").search(text, start)
+        if not m:
+            positions = []
+            break
+        positions.append((label, m.start(), m.end()))
+        start = m.end()
+    if positions and positions[0][1] == 0:
+        result = {}
+        for i, (label, _, end) in enumerate(positions):
+            stop = positions[i + 1][1] if i + 1 < len(positions) else len(text)
+            result[label] = clean_chinese(re.sub(r"\s*[√✓]\s*$", "", text[end:stop]))
+        if all(result.values()):
+            return result
+    # Cách 2: các đáp án cách nhau >= 2 dấu cách (OCR có thể làm mất nhãn)
+    text = re.sub(r"(^|\s)([A-F])\s+", r"\1\2 ", text)
     chunks = [c.strip() for c in re.split(r"\s{2,}", text) if c.strip()]
     if len(chunks) != len(labels):
         return {}
@@ -354,13 +444,15 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
     first = min(p["from"] for p in parts)
     last = max(p["to"] for p in parts)
     found = find_question_lines(lines, first, last)
+    groups = find_group_blocks(lines)
 
     questions = {}
     skipped = []
 
     for part in parts:
         numbers_in_part = range(part["from"], part["to"] + 1)
-        if images_needed(part) == 0 and not any(n in found for n in numbers_in_part):
+        in_group = any(part["from"] <= g <= part["to"] for g in groups)
+        if images_needed(part) == 0 and not in_group and not any(n in found for n in numbers_in_part):
             skipped.append(f"{part['from']}-{part['to']}")
             continue
 
@@ -371,6 +463,51 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
         if kind in WRITING_KINDS:
             for n in numbers:
                 questions[n] = build_writing_question(n, part, found.get(n, {}), level_cfg)
+            continue
+
+        if kind == "sort_sentences":
+            for n in numbers:
+                questions[n] = build_sort_question(n, part, found.get(n, {}), level_cfg)
+            continue
+
+        if kind == "picture_sentence":
+            for n in numbers:
+                img = image_map.get(n, {}).get("question")
+                questions[n] = build_picture_question(n, part, found.get(n, {}), img, level_cfg)
+            continue
+
+        if kind == "passage_group":
+            labels = part.get("labels", "ABCD")
+            for first, group in groups.items():
+                if not (part["from"] <= first <= part["to"]):
+                    continue
+                count = group["to"] - first + 1
+                passage, items = split_passage_group(group["block"], count, labels)
+                for offset in range(count):
+                    n = first + offset
+                    notes = []
+                    item = items[offset] if offset < len(items) else {"question": "", "options": {}}
+                    if not item["options"]:
+                        notes.append(f"Không tách được đáp án {'/'.join(labels)}")
+                    questions[n] = {
+                        "level": level_cfg["level"], "section": section,
+                        "question_number": n, "question_type": "multiple_choice",
+                        "question_text": (passage + "\n" + clean_chinese(item["question"])).strip(),
+                        "pinyin": "", "question_image": None,
+                        "options": {l: {"text": item["options"].get(l, ""), "image": None} for l in labels},
+                        "correct_answer": None, "points": 0,
+                        "raw_text": "", "source_page": group["page"], "review_notes": notes,
+                    }
+            for n in numbers:
+                if n not in questions:
+                    questions[n] = {
+                        "level": level_cfg["level"], "section": section,
+                        "question_number": n, "question_type": "multiple_choice",
+                        "question_text": "", "pinyin": "", "question_image": None,
+                        "options": {l: {"text": "", "image": None} for l in labels},
+                        "correct_answer": None, "points": 0, "raw_text": "",
+                        "source_page": None, "review_notes": ["Không tìm thấy nhóm câu trong PDF"],
+                    }
             continue
         part_pages = {found[n]["page"] for n in numbers if n in found}
 
@@ -387,6 +524,8 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                 labels = "AB"
             elif kind in ("image_abc", "text_abc"):
                 labels = "ABC"
+            elif kind == "text_abcd":
+                labels = "ABCD"
             else:
                 labels = part["labels"]
 
@@ -401,13 +540,13 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                 options[label]["image"] = img["filename"]
 
             question_text = ""
-            if kind == "text_abc":
-                parsed = parse_inline_options(info.get("text", ""), "ABC")
+            if kind in ("text_abc", "text_abcd"):
+                parsed = parse_inline_options(info.get("text", ""), labels)
                 if not parsed:
                     # "★ 他今天：   A 很忙   B 很累   C 很高兴" -> câu hỏi + đáp án cùng dòng
                     split = re.search(r"(^|\s{2,})A\s", info.get("text", ""))
                     if split and split.start() > 0:
-                        parsed = parse_inline_options(info["text"][split.start():], "ABC")
+                        parsed = parse_inline_options(info["text"][split.start():], labels)
                         if parsed:
                             info = dict(info, text=info["text"][:split.start()])
                 if not parsed:
@@ -415,7 +554,7 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                     more = info.get("more", [])
                     for i, line in enumerate(more):
                         if re.match(r"^A\s", line):
-                            parsed = parse_inline_options(line, "ABC")
+                            parsed = parse_inline_options(line, labels)
                             if parsed:
                                 info = dict(info, text="\n".join([info.get("text", "")] + more[:i]),
                                             more=[])
@@ -423,7 +562,7 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                 for label, text in parsed.items():
                     options[label]["text"] = text
                 if not parsed:
-                    notes.append("Không tách được đáp án A/B/C")
+                    notes.append(f"Không tách được đáp án {'/'.join(labels)}")
             elif kind == "shared_text":
                 for label, text in bank.items():
                     options[label]["text"] = text
@@ -444,7 +583,7 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                     question_text = ""
                     notes.append("Không đọc được chữ Hán của câu hỏi")
 
-            if part.get("text") or kind == "text_abc":
+            if part.get("text") or kind in ("text_abc", "text_abcd"):
                 if not info:
                     notes.append("Không tìm thấy dòng câu hỏi trong PDF")
 
@@ -472,7 +611,7 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
 
     for number, text in (text_answers or {}).items():
         q = questions.get(number)
-        if q and q["question_type"] == "fill_blank":
+        if q and q["question_type"] in ("fill_blank", "essay"):
             q["options"]["A"]["text"] = text
             q["correct_answer"] = "A"
 
@@ -508,7 +647,7 @@ def apply_fixes(questions, fixes):
 def apply_answers(questions, answers):
     for number, label in answers.items():
         q = questions.get(number)
-        if q and q["question_type"] != "fill_blank" and label in q["options"]:
+        if q and q["question_type"] == "multiple_choice" and label in q["options"]:
             q["correct_answer"] = label
 
 
@@ -516,15 +655,70 @@ def answers_from_text(text):
     return parse_answer_key(text)
 
 
-TEXT_ANSWER = re.compile(r"(?m)^\s*(\d{1,3})\s*[.．、]\s*([\u4e00-\u9fff][^\n]*)$")
+TEXT_ANSWER = re.compile(r"^\s*(\d{1,3})\s*[.．、]\s*([\u4e00-\u9fff].*)$")
+SORT_ANSWER = re.compile(r"(?<!\d)(\d{1,3})\s*[.．、]\s*([A-F]{3,6})(?![A-Za-z])")
 
 
 def text_answers_from_text(text):
-    """Đáp án phần Viết: {71: "弟弟高兴地笑了。", 76: "出"}."""
-    return {int(n): clean_chinese(a) for n, a in TEXT_ANSWER.findall(text or "")}
+    """
+    Đáp án dạng chữ: {71: "弟弟高兴地笑了。", 76: "出", 56: "ACB"}.
+    Đáp án bị xuống dòng (vd câu 91) được nối lại.
+    """
+    answers = {n: a for n, a in ((int(n), a) for n, a in SORT_ANSWER.findall(text or ""))}
+    current = None
+    for raw in (text or "").splitlines():
+        line = raw.strip()
+        match = TEXT_ANSWER.match(line)
+        if match:
+            current = int(match.group(1))
+            answers[current] = match.group(2)
+        elif current and line and CJK.search(line) and not re.match(r"^(第|（|\(|[一二三四]、)", line) \
+                and not re.match(r"^\d", line):
+            answers[current] += line          # phần tiếp của đáp án dài
+        else:
+            current = None
+    return {n: clean_chinese(a) if not re.fullmatch(r"[A-F]+", a) else a for n, a in answers.items()}
 
 
 WRITING_KINDS = ("arrange_words", "write_char")
+
+
+def build_sort_question(n, part, info, level_cfg):
+    """Sắp xếp 3 câu A/B/C: học viên gõ thứ tự (vd BAC), máy chấm theo đáp án."""
+    lines = [info.get("text", "")] + info.get("block", [])
+    sentences = {}
+    for line in lines:
+        m = re.match(r"^([A-F])\s+(.+)$", line.strip())
+        if m and m.group(1) not in sentences:
+            sentences[m.group(1)] = clean_chinese(m.group(2))
+    notes = [] if len(sentences) >= 3 else ["Không đọc đủ 3 câu A/B/C"]
+    text = "\n".join(f"{k} {v}" for k, v in sorted(sentences.items()))
+    return {
+        "level": level_cfg["level"], "section": part["section"],
+        "question_number": n, "question_type": "fill_blank",
+        "question_text": text + "\n（Gõ thứ tự đúng của các câu, ví dụ: BAC）",
+        "pinyin": "", "question_image": None,
+        "options": {"A": {"text": "", "image": None}},
+        "correct_answer": None, "points": 0,
+        "raw_text": info.get("raw_text", ""), "source_page": info.get("page"),
+        "review_notes": notes + ([] if info else ["Không tìm thấy dòng câu hỏi trong PDF"]),
+    }
+
+
+def build_picture_question(n, part, info, img, level_cfg):
+    """Nhìn tranh, dùng từ cho sẵn đặt câu: bài tự luận, giáo viên chấm."""
+    word = clean_chinese(info.get("text", ""))
+    notes = [] if word else ["Không đọc được từ cho sẵn"]
+    return {
+        "level": level_cfg["level"], "section": part["section"],
+        "question_number": n, "question_type": "essay",
+        "question_text": f"看图，用词造句：{word}" if word else "看图，用词造句。",
+        "pinyin": "", "question_image": img["filename"] if img else None,
+        "options": {"A": {"text": "", "image": None}},
+        "correct_answer": None, "points": 0,
+        "raw_text": info.get("raw_text", ""), "source_page": info.get("page"),
+        "review_notes": notes + ([] if img else ["Thiếu tranh"]),
+    }
 
 
 def build_writing_question(n, part, info, level_cfg):
