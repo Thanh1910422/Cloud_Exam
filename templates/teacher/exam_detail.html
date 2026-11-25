@@ -1,192 +1,266 @@
-
 {% extends "base.html" %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<style>
+    .steps { display: grid; gap: 16px; }
+    .step { background: #fff; border-radius: 12px; padding: 18px 22px; box-shadow: 0 2px 12px rgba(0,0,0,.05);
+            border-left: 5px solid #cbd5e1; }
+    .step.done { border-left-color: #16a34a; }
+    .step.todo { border-left-color: #2563eb; }
+    .step h3 { margin-bottom: 6px; }
+    .step-status { float: right; font-size: 14px; }
+    .ok { color: #15803d; font-weight: 600; }
+    .wait { color: #64748b; }
+    .uploader { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0 4px; }
+    .uploader progress { width: 220px; height: 10px; display: none; }
+    .upload-msg { font-size: 14px; }
+    .btn-action { border: none; cursor: pointer; padding: 10px 18px; border-radius: 8px; font-size: 15px;
+                  background: #2563eb; color: #fff; }
+    .btn-action.secondary { background: #e2e8f0; color: #0f172a; }
+    .btn-action.danger { background: #dc2626; }
+    .btn-action:disabled { background: #94a3b8; cursor: not-allowed; }
+    .hint { color: #64748b; font-size: 13px; }
+    .file-line { font-size: 14px; margin: 4px 0; }
+</style>
 
-<div class="container">
-
-    <h1>Chi tiết đề thi</h1>
-
+<div class="exam-page">
+    <p><a href="{{ url_for('teacher_exam.exams') }}">← Danh sách đề thi</a></p>
     <h2>{{ exam.title }}</h2>
-
-    <p><strong>Cấp độ:</strong> {{ exam.level_name }}</p>
-    <p><strong>Thời gian:</strong> {{ exam.duration_minutes }} phút</p>
-    <p><strong>Mô tả:</strong> {{ exam.description or "Chưa có mô tả" }}</p>
-    <p><strong>Trạng thái:</strong> {{ exam.status }}</p>
-    
-<hr>
-
-<h2>Tải tài liệu đề thi</h2>
-
-<p>Giáo viên có thể tải đề thi, file nghe, đáp án và hình ảnh câu hỏi lên hệ thống.</p>
-
-<!-- Tải file đề thi -->
-<form method="POST"
-      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
-      enctype="multipart/form-data">
-
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="file_type" value="exam_document">
-
-    <div style="margin-bottom: 15px;">
-        <label><strong>1. File đề thi (PDF hoặc DOCX):</strong></label><br>
-        <input type="file" name="file" accept=".pdf,.docx" required>
-    </div>
-
-    <button type="submit">Tải đề thi lên</button>
-</form>
-
-<hr>
-
-<!-- Tải file nghe -->
-<form method="POST"
-      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
-      enctype="multipart/form-data">
-
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="file_type" value="listening_audio">
-
-    <div style="margin-bottom: 15px;">
-        <label><strong>2. File nghe (MP3 hoặc WAV):</strong></label><br>
-        <input type="file" name="file" accept=".mp3,.wav" required>
-    </div>
-
-    <button type="submit">Tải file nghe lên</button>
-</form>
-
-<hr>
-
-<!-- Tải đáp án -->
-<form method="POST"
-      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
-      enctype="multipart/form-data">
-
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="file_type" value="answer_key">
-
-    <div style="margin-bottom: 15px;">
-        <label><strong>3. File đáp án (PDF hoặc DOCX):</strong></label><br>
-        <input type="file" name="file" accept=".pdf,.docx">
-    </div>
-
-    <button type="submit">Tải đáp án lên</button>
-</form>
-
-<hr>
-
-<!-- Tải hình ảnh -->
-<form method="POST"
-      action="{{ url_for('teacher_exam.upload_exam_file', exam_id=exam.id) }}"
-      enctype="multipart/form-data">
-
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="file_type" value="question_image">
-
-    <div style="margin-bottom: 15px;">
-        <label><strong>4. Hình ảnh câu hỏi (JPG hoặc PNG):</strong></label><br>
-        <input type="file" name="file" accept=".jpg,.jpeg,.png">
-    </div>
-
-    <button type="submit">Tải hình ảnh lên</button>
-</form>
-
-<hr>
-
-    <hr>
-
-    <h2>Cấu trúc đề thi</h2>
-
-    
-    {% if sections %}
-        <table style="width:100%; border-collapse:collapse;">
-            <thead>
-                <tr>
-                    <th>Phần thi</th>
-                    <th>Tên phần</th>
-                    <th>Thời gian</th>
-                    <th>Thứ tự</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for section in sections %}
-                <tr>
-                    <td>{{ section.section_type }}</td>
-                    <td>{{ section.section_title }}</td>
-                    <td>{{ section.time_limit_minutes }} phút</td>
-                    <td>{{ section.sort_order }}</td>
-                    <td>
-                        <a href="{{ url_for(
-                            'teacher_questions.section_questions',
-                            section_id=section.id
-                        ) }}">
-                            Quản lý câu hỏi
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Đề thi chưa có phần thi nào.</p>
-    {% endif %}
-
-
-    <hr>
-
-    <h2>Thêm phần thi</h2>
-
-    <form method="POST"
-          action="{{ url_for('teacher_questions.add_section', exam_id=exam.id) }}">
-
-        <input type="hidden"
-               name="csrf_token"
-               value="{{ csrf_token() }}">
-
-        <div style="margin-bottom:15px;">
-            <label for="section_type">Loại phần thi:</label>
-            <select name="section_type" id="section_type" required>
-                <option value="">-- Chọn phần thi --</option>
-                <option value="listening">Listening - Nghe</option>
-                <option value="reading">Reading - Đọc</option>
-                <option value="writing">Writing - Viết</option>
-            </select>
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="section_title">Tên phần thi:</label>
-            <input
-                type="text"
-                id="section_title"
-                name="section_title"
-                placeholder="Ví dụ: HSK 1 - Listening"
-                required
-            >
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="time_limit_minutes">Thời gian (phút):</label>
-            <input
-                type="number"
-                id="time_limit_minutes"
-                name="time_limit_minutes"
-                min="1"
-                value="20"
-                required
-            >
-        </div>
-
-        <button type="submit">Thêm phần thi</button>
-
-    </form>
-
+    <p class="exam-meta">
+        {{ exam.level_name }} · {{ exam.duration_minutes }} phút ·
+        {% if exam.status == 'published' %}<span class="ok">Đã xuất bản</span>
+        {% elif exam.status == 'draft' %}Bản nháp{% else %}Đã lưu trữ{% endif %}
+        · {{ counts.questions }} câu hỏi · {{ attempts }} lượt thi
+    </p>
+    {% if exam.description %}<p>{{ exam.description }}</p>{% endif %}
     <br>
 
-    <a href="{{ url_for('teacher_exam.exams') }}">
-        Quay lại danh sách đề thi
-    </a>
+    {% if not auto_supported %}
+    <div class="exam-card" style="border-left:5px solid #f59e0b;">
+        ⚠ {{ exam.level_name }} chưa có cấu hình định dạng đề nên chưa <strong>tạo câu hỏi tự động</strong> được.
+        Bạn vẫn tải file lên được; câu hỏi cần được thêm thủ công hoặc nhờ quản trị viên bổ sung cấu hình.
+    </div>
+    {% endif %}
 
+    <div class="steps">
+
+        <!-- BƯỚC 1: FILE ĐỀ -->
+        <div class="step {{ 'done' if files.exam_document else 'todo' }}">
+            <span class="step-status">{% if files.exam_document %}<span class="ok">✓ Đã có</span>{% else %}<span class="wait">Chưa có</span>{% endif %}</span>
+            <h3>Bước 1 · Tải file đề thi (PDF)</h3>
+            {% if files.exam_document %}
+                <p class="file-line">📄 {{ files.exam_document.original_filename }}
+                   ({{ (files.exam_document.size_bytes / 1048576) | round(1) }} MB)</p>
+            {% endif %}
+            <p class="hint">PDF có chữ chọn được (không phải bản scan). Nếu cuối file có trang đáp án (答案), hệ thống tự đọc luôn đáp án. Tối đa 50 MB.</p>
+            <div class="uploader" data-file-type="exam_document">
+                <input type="file" accept=".pdf,.docx">
+                <button type="button" class="btn-action secondary">{{ 'Tải file khác' if files.exam_document else 'Tải lên' }}</button>
+                <progress max="100" value="0"></progress>
+                <span class="upload-msg"></span>
+            </div>
+        </div>
+
+        <!-- BƯỚC 2: FILE NGHE + ĐÁP ÁN -->
+        <div class="step {{ 'done' if files.listening_audio else 'todo' }}">
+            <span class="step-status">{% if files.listening_audio %}<span class="ok">✓ Đã có file nghe</span>{% else %}<span class="wait">Chưa có file nghe</span>{% endif %}</span>
+            <h3>Bước 2 · Tải file nghe (MP3) và file đáp án (nếu có)</h3>
+
+            {% if files.listening_audio %}
+                <p class="file-line">🎧 {{ files.listening_audio.original_filename }}
+                   ({{ (files.listening_audio.size_bytes / 1048576) | round(1) }} MB)</p>
+            {% endif %}
+            <p class="hint">File nghe: MP3/WAV/M4A, tối đa 50 MB (nên nén 64–96 kbps nếu file lớn).</p>
+            <div class="uploader" data-file-type="listening_audio">
+                <input type="file" accept=".mp3,.wav,.m4a">
+                <button type="button" class="btn-action secondary">Tải lên</button>
+                <progress max="100" value="0"></progress>
+                <span class="upload-msg"></span>
+            </div>
+
+            <br>
+            {% if files.answer_key %}
+                <p class="file-line">✅ Đáp án: {{ files.answer_key.original_filename }}</p>
+            {% endif %}
+            <p class="hint">File đáp án: PDF/DOCX/TXT dạng <code>1．√ 2．× 11．A … 56．ACB … 86．câu trả lời</code>. Không cần nếu đáp án đã nằm cuối file đề.</p>
+            <div class="uploader" data-file-type="answer_key">
+                <input type="file" accept=".pdf,.docx,.txt">
+                <button type="button" class="btn-action secondary">Tải lên</button>
+                <progress max="100" value="0"></progress>
+                <span class="upload-msg"></span>
+            </div>
+        </div>
+
+        <!-- BƯỚC 3: TẠO CÂU HỎI -->
+        <div class="step {{ 'done' if counts.questions else 'todo' }}">
+            <span class="step-status">
+                {% if counts.questions %}<span class="ok">✓ {{ counts.questions }} câu · {{ counts.with_answer }} có đáp án</span>
+                {% else %}<span class="wait">Chưa có câu hỏi</span>{% endif %}
+            </span>
+            <h3>Bước 3 · Tạo câu hỏi tự động</h3>
+            <p class="hint">Hệ thống đọc file PDF đề, tách câu hỏi, ảnh, đáp án theo định dạng {{ exam.level_name }}. Mất khoảng 10–60 giây.</p>
+
+            {% if not counts.questions %}
+                <form method="POST" action="{{ url_for('teacher_builder.build', exam_id=exam.id) }}" class="busy-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn-action" {{ 'disabled' if not files.exam_document or not auto_supported }}>
+                        Tạo câu hỏi từ file đề
+                    </button>
+                </form>
+            {% else %}
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <form method="POST" action="{{ url_for('teacher_builder.update_answers', exam_id=exam.id) }}" class="busy-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn-action secondary">Cập nhật đáp án</button>
+                    </form>
+
+                    {% if attempts == 0 %}
+                    <form method="POST" action="{{ url_for('teacher_builder.build', exam_id=exam.id) }}" class="busy-form"
+                          onsubmit="return confirm('Xóa toàn bộ {{ counts.questions }} câu hiện có (kể cả chỉnh sửa) và tạo lại từ file đề?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="replace" value="1">
+                        <button class="btn-action danger" {{ 'disabled' if not auto_supported }}>Tạo lại từ đầu</button>
+                    </form>
+                    {% else %}
+                    <span class="hint">Đã có {{ attempts }} lượt thi nên không thể tạo lại (chỉ cập nhật đáp án / sửa từng câu).</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- BƯỚC 4: KIỂM TRA + XUẤT BẢN -->
+        <div class="step {{ 'done' if exam.status == 'published' else 'todo' }}">
+            <span class="step-status">{% if exam.status == 'published' %}<span class="ok">✓ Học viên đang thấy đề</span>{% else %}<span class="wait">Học viên chưa thấy</span>{% endif %}</span>
+            <h3>Bước 4 · Kiểm tra và xuất bản</h3>
+            <p class="hint">Mở từng phần thi để xem câu hỏi, sửa câu có dấu ⚠, nhập đáp án còn thiếu. Xong thì bấm Xuất bản.</p>
+
+            {% if sections %}
+            <table class="exam-table" style="margin:10px 0;">
+                <thead><tr><th>Phần thi</th><th>Tên phần</th><th>Thời gian</th><th></th></tr></thead>
+                <tbody>
+                    {% for section in sections %}
+                    <tr>
+                        <td>{{ {'listening': 'Nghe', 'reading': 'Đọc', 'writing': 'Viết'}.get(section.section_type, section.section_type) }}</td>
+                        <td>{{ section.section_title }}</td>
+                        <td>{{ section.time_limit_minutes }} phút</td>
+                        <td><a href="{{ url_for('teacher_questions.section_questions', section_id=section.id) }}">Quản lý câu hỏi →</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('teacher_builder.set_status', exam_id=exam.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% if exam.status == 'published' %}
+                    <input type="hidden" name="status" value="draft">
+                    <button class="btn-action secondary">Ẩn đề (chuyển về bản nháp)</button>
+                {% else %}
+                    <input type="hidden" name="status" value="published">
+                    <button class="btn-action" {{ 'disabled' if not counts.questions }}>Xuất bản cho học viên</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Thêm phần thi thủ công (ít dùng) -->
+    <details style="margin-top:24px;">
+        <summary class="hint" style="cursor:pointer;">Nâng cao: thêm phần thi thủ công</summary>
+        <form method="POST" action="{{ url_for('teacher_questions.add_section', exam_id=exam.id) }}" style="margin-top:10px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="section_type" required>
+                <option value="">-- Phần thi --</option>
+                <option value="listening">Nghe</option>
+                <option value="reading">Đọc</option>
+                <option value="writing">Viết</option>
+            </select>
+            <input type="text" name="section_title" placeholder="Tên phần thi" required>
+            <input type="number" name="time_limit_minutes" min="1" value="20" required style="width:80px;"> phút
+            <button type="submit">Thêm phần thi</button>
+        </form>
+    </details>
 </div>
 
+<script>
+(function () {
+    var csrf = "{{ csrf_token() }}";
+    var urlFor = {
+        sign: "{{ url_for('teacher_builder.upload_url', exam_id=exam.id) }}",
+        done: "{{ url_for('teacher_builder.upload_complete', exam_id=exam.id) }}"
+    };
+
+    function postJSON(url, body) {
+        return fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrf },
+            body: JSON.stringify(body),
+            credentials: "same-origin"
+        }).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (data) {
+                if (!r.ok) throw new Error(data.error || ("Lỗi " + r.status));
+                return data;
+            });
+        });
+    }
+
+    document.querySelectorAll(".uploader").forEach(function (box) {
+        var input = box.querySelector("input[type=file]");
+        var button = box.querySelector("button");
+        var bar = box.querySelector("progress");
+        var msg = box.querySelector(".upload-msg");
+        var fileType = box.dataset.fileType;
+
+        button.addEventListener("click", function () {
+            var file = input.files[0];
+            if (!file) { msg.textContent = "Hãy chọn file trước."; return; }
+            button.disabled = true;
+            msg.textContent = "Đang chuẩn bị…";
+
+            postJSON(urlFor.sign, { file_type: fileType, filename: file.name, size: file.size })
+                .then(function (info) {
+                    // Tải THẲNG lên Supabase (không qua Vercel)
+                    return new Promise(function (resolve, reject) {
+                        var form = new FormData();
+                        form.append("cacheControl", "3600");
+                        form.append("", file);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("PUT", info.upload_url);
+                        xhr.setRequestHeader("x-upsert", "false");
+                        xhr.upload.onprogress = function (e) {
+                            if (e.lengthComputable) {
+                                bar.style.display = "inline-block";
+                                bar.value = Math.round(e.loaded / e.total * 100);
+                                msg.textContent = "Đang tải lên " + bar.value + "%";
+                            }
+                        };
+                        xhr.onload = function () {
+                            if (xhr.status >= 200 && xhr.status < 300) resolve(info);
+                            else reject(new Error("Supabase từ chối file (" + xhr.status + "): " + xhr.responseText.slice(0, 120)));
+                        };
+                        xhr.onerror = function () { reject(new Error("Mất kết nối khi tải lên.")); };
+                        xhr.send(form);
+                    });
+                })
+                .then(function (info) {
+                    msg.textContent = "Đang lưu…";
+                    return postJSON(urlFor.done, { path: info.path, mime_type: file.type });
+                })
+                .then(function () { window.location.reload(); })
+                .catch(function (err) {
+                    msg.textContent = "❌ " + err.message;
+                    button.disabled = false;
+                });
+        });
+    });
+
+    // Báo đang xử lý khi bấm Tạo câu hỏi / Cập nhật đáp án
+    document.querySelectorAll(".busy-form").forEach(function (form) {
+        form.addEventListener("submit", function () {
+            var b = form.querySelector("button");
+            setTimeout(function () { b.disabled = true; b.textContent = "Đang xử lý, vui lòng chờ…"; }, 0);
+        });
+    });
+})();
+</script>
 {% endblock %}

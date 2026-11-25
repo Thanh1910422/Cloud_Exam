@@ -65,10 +65,51 @@ def exam_content(exam_id):
 
             sections = cursor.fetchall()
 
+            # File mới nhất của từng loại (đề, file nghe, đáp án)
+            cursor.execute("""
+                SELECT DISTINCT ON (file_type)
+                    file_type, original_filename, size_bytes
+                FROM exam_files
+                WHERE exam_id = %s
+                ORDER BY file_type, id DESC
+            """, (exam_id,))
+            files = {row["file_type"]: row for row in cursor.fetchall()}
+
+            cursor.execute("""
+                SELECT
+                    COUNT(*) AS questions,
+                    COUNT(*) FILTER (WHERE EXISTS (
+                        SELECT 1 FROM answer_options
+                        WHERE answer_options.question_id = questions.id
+                          AND answer_options.is_correct
+                    )) AS with_answer
+                FROM questions
+                JOIN exam_sections ON questions.section_id = exam_sections.id
+                WHERE exam_sections.exam_id = %s
+            """, (exam_id,))
+            counts = cursor.fetchone()
+
+            cursor.execute(
+                "SELECT COUNT(*) AS n FROM exam_attempts WHERE exam_id = %s",
+                (exam_id,))
+            attempts = cursor.fetchone()["n"]
+
+            cursor.execute("""
+                SELECT hsk_levels.level_number FROM exams
+                JOIN hsk_levels ON exams.level_id = hsk_levels.id WHERE exams.id = %s
+            """, (exam_id,))
+            level_number = cursor.fetchone()["level_number"]
+
+        from routes.teacher_builder import supported_levels
+
         return render_template(
             "teacher/exam_detail.html",
             exam=exam,
-            sections=sections
+            sections=sections,
+            files=files,
+            counts=counts,
+            attempts=attempts,
+            auto_supported=level_number in supported_levels()
         )
 
     except HTTPException:

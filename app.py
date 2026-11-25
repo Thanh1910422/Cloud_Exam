@@ -19,6 +19,7 @@ from routes.student_exams import student_exam_bp
 from routes.media import media_bp
 from routes.teacher_grading import teacher_grading_bp
 from routes.statistics import statistics_bp
+from routes.teacher_builder import teacher_builder_bp
 
 load_dotenv()
 
@@ -49,6 +50,7 @@ app.register_blueprint(student_exam_bp)
 app.register_blueprint(media_bp)
 app.register_blueprint(teacher_grading_bp)
 app.register_blueprint(statistics_bp)
+app.register_blueprint(teacher_builder_bp)
 
 
 @app.route("/")

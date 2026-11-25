@@ -790,8 +790,8 @@ def save_to_db(cursor, exam_id, level_cfg, questions, image_url, replace=False, 
         existing = cursor.fetchone()["n"]
         if existing and not replace:
             raise BuildError(
-                f"Phần {section_type} đã có {existing} câu. Thêm --replace để xóa và tạo lại "
-                f"(LƯU Ý: mọi chỉnh sửa giáo viên đã làm trên app sẽ mất)."
+                f"Phần {section_type} đã có {existing} câu. Chọn 'tạo lại' (--replace) để xóa và "
+                f"tạo lại (LƯU Ý: mọi chỉnh sửa giáo viên đã làm trên app sẽ mất)."
             )
         if existing:
             cursor.execute("""
@@ -806,34 +806,48 @@ def save_to_db(cursor, exam_id, level_cfg, questions, image_url, replace=False, 
             cursor.execute("DELETE FROM questions WHERE section_id = %s", (section_id,))
             log(f"Đã xóa {existing} câu cũ của phần {section_type}")
 
-    for q in questions:
-        cursor.execute("""
-            INSERT INTO questions
-                (section_id, question_type, question_text, image_url, audio_url, points, sort_order)
-            VALUES (%s, %s, %s, %s, NULL, %s, %s)
-            RETURNING id
-        """, (
+    # Ghi theo lô (1 câu SQL cho mọi câu hỏi, 1 câu cho mọi đáp án):
+    # nhanh hơn rất nhiều khi database ở xa (vd web chạy trên Vercel).
+    if not questions:
+        return
+    q_rows = [
+        (
             section_ids[q["section"]],
             q.get("question_type", "multiple_choice"),
             q["question_text"] or "",
             image_url(q["question_image"]) if q["question_image"] else None,
             Decimal(str(q["points"])),
             q["question_number"],
-        ))
-        question_id = cursor.fetchone()["id"]
+        )
+        for q in questions
+    ]
+    cursor.execute(
+        "INSERT INTO questions (section_id, question_type, question_text, image_url, "
+        "audio_url, points, sort_order) VALUES "
+        + ", ".join(["(%s, %s, %s, %s, NULL, %s, %s)"] * len(q_rows))
+        + " RETURNING id, section_id, sort_order",
+        [value for row in q_rows for value in row],
+    )
+    ids = {(r["section_id"], r["sort_order"]): r["id"] for r in cursor.fetchall()}
 
+    o_rows = []
+    for q in questions:
+        question_id = ids[(section_ids[q["section"]], q["question_number"])]
         for label, option in q["options"].items():
-            cursor.execute("""
-                INSERT INTO answer_options
-                    (question_id, option_label, option_text, is_correct, option_image_url)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
+            o_rows.append((
                 question_id,
                 label,
                 option["text"] or "",
                 label == q["correct_answer"],
                 image_url(option["image"]) if option["image"] else None,
             ))
+    if o_rows:
+        cursor.execute(
+            "INSERT INTO answer_options (question_id, option_label, option_text, "
+            "is_correct, option_image_url) VALUES "
+            + ", ".join(["(%s, %s, %s, %s, %s)"] * len(o_rows)),
+            [value for row in o_rows for value in row],
+        )
 
 
 def used_image_files(questions):

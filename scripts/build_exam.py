@@ -15,6 +15,9 @@ Tùy chọn hay dùng:
   --replace                      xóa câu hỏi cũ của đề rồi tạo lại
   --ocr always                   bắt buộc OCR (khi lớp chữ trong PDF bị lỗi font)
   --pdf duong_dan.pdf            dùng file PDF trên máy thay vì file trên Supabase
+  --update-answers               CHỈ cập nhật đáp án cho đề đã tạo (không xóa câu hỏi,
+                                 giữ nguyên chỉnh sửa và bài làm). Dùng kèm --answer-file
+                                 hoặc để script tự đọc đáp án trong file đề.
 
 Kết quả trung gian để kiểm tra nằm ở outputs/exam_<id>/.
 Sửa tay chỗ OCR sai: tạo data/fixes/exam_<id>.json (cùng dạng data/hsk1_manual_fixes.json).
@@ -28,6 +31,16 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from services.exam_pipeline import (  # noqa: E402
+    STORAGE_FOLDER,
+    get_exam,
+    latest_file,
+    count_existing_questions,
+    has_student_answers,
+    update_answers,
+    file_text,
+    image_content_type,
+)
 from services.exam_builder import (  # noqa: E402
     BuildError,
     load_level_config,
@@ -40,8 +53,6 @@ from services.exam_builder import (  # noqa: E402
     used_image_files,
 )
 
-STORAGE_FOLDER = "exams/{exam_id}/question_images/auto"
-
 
 def parse_args():
     p = argparse.ArgumentParser(description="Tạo đề HSK tự động từ file PDF")
@@ -52,6 +63,8 @@ def parse_args():
     p.add_argument("--pdf", type=Path, help="Dùng file PDF đề trên máy")
     p.add_argument("--answer-file", type=Path, help="Dùng file đáp án (PDF/DOCX) trên máy")
     p.add_argument("--ocr", choices=["auto", "always", "never"], default="auto")
+    p.add_argument("--update-answers", action="store_true",
+                   help="Chỉ cập nhật đáp án cho câu hỏi đã có, không xóa/tạo lại câu hỏi")
     p.add_argument("--from-files", nargs=3, metavar=("TEXT", "MANIFEST", "IMAGES_DIR"),
                    help="Dùng lại dữ liệu đã trích trước đó (không đọc PDF)")
     return p.parse_args()
@@ -64,62 +77,6 @@ def log(message=""):
 # ------------------------------------------
 # Lấy thông tin đề + file từ DB / Storage
 # ------------------------------------------
-def get_exam(cursor, exam_id):
-    cursor.execute("""
-        SELECT exams.id, exams.title, hsk_levels.level_number
-        FROM exams JOIN hsk_levels ON exams.level_id = hsk_levels.id
-        WHERE exams.id = %s
-    """, (exam_id,))
-    exam = cursor.fetchone()
-    if not exam:
-        raise BuildError(f"Không có đề thi id={exam_id}")
-    return exam
-
-
-def latest_file(cursor, exam_id, file_type):
-    cursor.execute("""
-        SELECT storage_path, original_filename
-        FROM exam_files
-        WHERE exam_id = %s AND file_type = %s
-        ORDER BY id DESC
-        LIMIT 1
-    """, (exam_id, file_type))
-    return cursor.fetchone()
-
-
-def count_existing_questions(cursor, exam_id):
-    cursor.execute("""
-        SELECT COUNT(*) AS n
-        FROM questions JOIN exam_sections ON questions.section_id = exam_sections.id
-        WHERE exam_sections.exam_id = %s
-    """, (exam_id,))
-    return cursor.fetchone()["n"]
-
-
-def has_student_answers(cursor, exam_id):
-    cursor.execute("""
-        SELECT COUNT(*) AS n
-        FROM exam_attempts WHERE exam_id = %s
-    """, (exam_id,))
-    return cursor.fetchone()["n"] > 0
-
-
-def file_text(data, filename, ocr):
-    """Lấy chữ từ file đáp án PDF, DOCX hoặc TXT."""
-    name = filename.lower()
-    if name.endswith(".txt"):
-        return data.decode("utf-8-sig")
-    if name.endswith(".docx"):
-        import io
-        import docx
-        document = docx.Document(io.BytesIO(data))
-        parts = [p.text for p in document.paragraphs]
-        for table in document.tables:
-            for row in table.rows:
-                parts.append("  ".join(cell.text for cell in row.cells))
-        return "\n".join(parts)
-    pages, _ = read_pdf(data, ocr=ocr)
-    return "\n".join(p["text"] for p in pages)
 
 
 # ------------------------------------------
@@ -211,7 +168,7 @@ def main():
                 log("⚠ Cấu hình cấp độ này chưa được kiểm chứng, hãy xem kỹ kết quả --dry-run.")
 
             existing = count_existing_questions(cursor, args.exam_id)
-            if existing and not args.replace:
+            if existing and not args.replace and not args.update_answers:
                 message = (f"Đề này đã có {existing} câu hỏi. Thêm --replace để xóa và tạo lại "
                            f"(mọi chỉnh sửa giáo viên đã làm trên app sẽ mất).")
                 if not args.dry_run:
@@ -222,7 +179,10 @@ def main():
                                  "Hãy tạo một đề thi mới trên app rồi chạy với id mới.")
 
             # ---- 1. Đọc đề ----
-            if args.from_files:
+            skip_pdf = args.update_answers and (args.answer_file or args.answers)
+            if skip_pdf:
+                pages, images = [], []
+            elif args.from_files:
                 pages, images = load_from_files(*args.from_files)
                 log("Dùng dữ liệu đã trích sẵn.")
             else:
@@ -241,7 +201,7 @@ def main():
                 pages, images = read_pdf(pdf_bytes, ocr=args.ocr)
 
             # Lưu kết quả trung gian để kiểm tra
-            with open(out_dir / "pages.txt", "w", encoding="utf-8") as f:
+            with open(out_dir / ("pages.txt" if pages else "pages_skip.txt"), "w", encoding="utf-8") as f:
                 for page in pages:
                     f.write(f"\n{'=' * 50}\nTRANG {page['page']} ({page['source']})\n{'=' * 50}\n")
                     f.write(page["text"])
@@ -260,7 +220,7 @@ def main():
             elif args.answer_file:
                 key_text = file_text(args.answer_file.read_bytes(), args.answer_file.name, args.ocr)
                 source = "file trên máy"
-            elif not args.from_files:
+            elif not args.from_files and not skip_pdf:
                 key = latest_file(cursor, args.exam_id, "answer_key")
                 if key:
                     data = get_storage().download(key["storage_path"])
@@ -278,6 +238,22 @@ def main():
                 text_answers = text_answers_from_text(key_text)
                 log(f"Đáp án từ {source}: {len(answers)} câu trắc nghiệm, "
                     f"{len(text_answers)} câu dạng chữ (phần Viết)")
+
+            if args.update_answers:
+                if not answers and not text_answers:
+                    raise BuildError("Không đọc được đáp án nào. Hãy dùng --answer-file <file đáp án>.")
+                count, total, skipped = update_answers(
+                    cursor, args.exam_id, answers, text_answers, dry_run=args.dry_run)
+                log(f"\nCập nhật đáp án cho {count}/{total} câu.")
+                if skipped:
+                    log("Bỏ qua (đề không có đáp án này): " + ", ".join(skipped))
+                if args.dry_run:
+                    log("(dry-run) Chưa ghi gì vào database.")
+                    return
+                connection.commit()
+                log("✅ Đã cập nhật đáp án. Mở 'Quản lý câu hỏi' trên app để kiểm tra.")
+                log("Lưu ý: các lượt thi đã nộp TRƯỚC khi có đáp án không tự chấm lại.")
+                return
 
             # ---- 3. Sửa tay (nếu có) ----
             fixes_path = PROJECT_ROOT / "data" / "fixes" / f"exam_{args.exam_id}.json"
@@ -309,8 +285,7 @@ def main():
                 get_storage().upload(
                     f"{folder}/{name}",
                     img["data"],
-                    {"content-type": f"image/{'jpeg' if img['ext'] in ('jpg', 'jpeg') else img['ext']}",
-                     "upsert": "true"},
+                    {"content-type": image_content_type(img["ext"]), "upsert": "true"},
                 )
 
             # ---- 6. Ghi database ----

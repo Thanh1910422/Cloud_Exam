@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo đề thi mới - HSK Exam{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<div class="exam-page" style="max-width:640px;">
+    <p><a href="{{ url_for('teacher_exam.exams') }}">← Danh sách đề thi</a></p>
+    <h2>Tạo đề thi mới</h2>
+    <p class="exam-meta">Sau khi tạo, bạn tải file PDF đề lên và bấm “Tạo câu hỏi tự động”.</p>
+    <br>
+
+    <form method="POST" class="exam-card">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label for="title"><strong>Tên đề thi *</strong></label><br>
+        <input type="text" id="title" name="title" required maxlength="200"
+               value="{{ form.get('title', '') }}" placeholder="Ví dụ: HSK4 - Đề số 2 (H41002)"
+               style="width:100%; padding:10px; margin:6px 0 16px;">
+
+        <label for="level_id"><strong>Cấp độ *</strong></label><br>
+        <select id="level_id" name="level_id" required style="width:100%; padding:10px; margin:6px 0 4px;">
+            <option value="">-- Chọn cấp độ --</option>
+            {% for lv in levels %}
+            <option value="{{ lv.id }}" data-level="{{ lv.level_number }}"
+                    {{ 'selected' if form.get('level_id') == lv.id|string }}>
+                {{ lv.level_name }}{{ '' if lv.level_number in supported else ' (chưa tạo câu hỏi tự động được)' }}
+            </option>
+            {% endfor %}
+        </select>
+        <p class="exam-meta" style="margin-bottom:16px;">
+            Tạo câu hỏi tự động: {% for n in supported %}HSK{{ n }}{{ ', ' if not loop.last }}{% endfor %}.
+        </p>
+
+        <label for="duration_minutes"><strong>Thời gian làm bài (phút) *</strong></label><br>
+        <input type="number" id="duration_minutes" name="duration_minutes" min="5" max="300" required
+               value="{{ form.get('duration_minutes', '') }}" style="width:140px; padding:10px; margin:6px 0 4px;">
+        <p class="exam-meta" style="margin-bottom:16px;">Gợi ý: HSK1 40 · HSK2 55 · HSK3 90 · HSK4 105 · HSK5 125 · HSK6 140 phút.</p>
+
+        <label for="description"><strong>Mô tả</strong> (không bắt buộc)</label><br>
+        <textarea id="description" name="description" rows="3" style="width:100%; padding:10px; margin:6px 0 16px;">{{ form.get('description', '') }}</textarea>
+
+        <button type="submit" class="btn-primary" style="border:none; cursor:pointer;">Tạo đề thi</button>
+    </form>
+</div>
+
+<script>
+(function () {
+    var minutes = {1: 40, 2: 55, 3: 90, 4: 105, 5: 125, 6: 140};
+    var level = document.getElementById("level_id");
+    var duration = document.getElementById("duration_minutes");
+    level.addEventListener("change", function () {
+        var n = level.options[level.selectedIndex].dataset.level;
+        if (n && !duration.value) duration.value = minutes[n] || 60;
+    });
+})();
+</script>
+{% endblock %}
