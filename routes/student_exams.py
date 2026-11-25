@@ -163,6 +163,11 @@ def typed_answer_correct(answer_text, options):
 @role_required("student")
 def exams():
     connection = None
+    try:
+        level = int(request.args.get("level", ""))
+        level = level if 1 <= level <= 6 else None
+    except ValueError:
+        level = None
 
     try:
         connection = get_connection()
@@ -181,10 +186,11 @@ def exams():
                 LEFT JOIN exam_sections ON exam_sections.exam_id = exams.id
                 LEFT JOIN questions ON questions.section_id = exam_sections.id
                 WHERE exams.status = 'published'
+                  AND (%s::int IS NULL OR hsk_levels.level_number = %s::int)
                 GROUP BY exams.id, hsk_levels.level_name, hsk_levels.level_number
                 HAVING COUNT(questions.id) > 0
                 ORDER BY hsk_levels.level_number, exams.title
-            """)
+            """, (level, level))
             exam_list = cursor.fetchall()
 
             cursor.execute("""
@@ -209,7 +215,9 @@ def exams():
         return render_template(
             "student/exams.html",
             exams=exam_list,
-            attempts=attempts
+            attempts=attempts,
+            current_level=level,
+            tab_endpoint="student_exam.exams"
         )
 
     except Exception:

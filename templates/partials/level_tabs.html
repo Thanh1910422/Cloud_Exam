@@ -1,0 +1,13 @@
+{# Thanh lọc theo cấp độ. Cần biến: current_level (số hoặc None), tab_endpoint #}
+<div class="level-tabs" role="group" aria-label="Lọc theo cấp độ">
+    <a href="{{ url_for(tab_endpoint) }}" class="{{ 'active' if not current_level }}">Tất cả</a>
+    {% for n in range(1, 7) %}
+    <a href="{{ url_for(tab_endpoint, level=n) }}" class="{{ 'active' if current_level == n }}">HSK {{ n }}</a>
+    {% endfor %}
+</div>
+<style>
+    .level-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0 18px; }
+    .level-tabs a { padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 999px; text-decoration: none;
+                    color: #334155; background: #fff; font-size: 14px; }
+    .level-tabs a.active { background: #1e40af; color: #fff; border-color: #1e40af; }
+</style>

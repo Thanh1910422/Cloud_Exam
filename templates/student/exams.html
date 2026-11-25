@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
 <div class="exam-page">
     <h2>Đề thi thử</h2>
-    <p class="exam-meta">Chọn đề và bấm "Bắt đầu". Đồng hồ chạy ngay khi bạn vào bài.</p>
-    <br>
+    <p class="exam-meta">Chọn cấp độ, chọn đề và bấm "Bắt đầu". Đồng hồ chạy ngay khi bạn vào bài.</p>
+    {% include "partials/level_tabs.html" %}
 
     {% for exam in exams %}
     <div class="exam-card exam-list-item">

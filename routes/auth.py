@@ -27,8 +27,17 @@ def valid_email(email):
     return re.match(pattern, email) is not None
 
 
+def safe_next(value):
+    """Chỉ cho phép quay lại đường dẫn nội bộ (vd /hsk/3), chặn link sang trang web khác."""
+    if value and value.startswith("/") and not value.startswith("//") and "\\" not in value:
+        return value
+    return None
+
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
+    if session.get("user_id"):
+        return redirect(safe_next(request.args.get("next")) or url_for("dashboard"))
 
     if request.method == "POST":
         full_name = request.form.get("full_name", "").strip()
@@ -118,7 +127,8 @@ def register():
                 "success"
             )
 
-            return redirect(url_for("auth.login"))
+            next_url = safe_next(request.values.get("next"))
+            return redirect(url_for("auth.login", next=next_url) if next_url else url_for("auth.login"))
 
         except psycopg2.IntegrityError:
             if connection:
@@ -142,6 +152,10 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    next_url = safe_next(request.values.get("next"))
+
+    if session.get("user_id"):
+        return redirect(next_url or url_for("dashboard"))
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -198,7 +212,7 @@ def login():
                     "success"
                 )
 
-                return redirect(url_for("dashboard"))
+                return redirect(next_url or url_for("dashboard"))
 
             flash("Email hoặc mật khẩu không chính xác.", "error")
 

@@ -43,6 +43,11 @@ ALLOWED_EXTENSIONS = {
 @role_required("teacher")
 def exams():
     connection = None
+    try:
+        level = int(request.args.get("level", ""))
+        level = level if 1 <= level <= 6 else None
+    except ValueError:
+        level = None
 
     try:
         connection = get_connection()
@@ -61,14 +66,17 @@ def exams():
                 JOIN hsk_levels
                     ON exams.level_id = hsk_levels.id
                 WHERE exams.teacher_id = %s
-                ORDER BY exams.created_at DESC
-            """, (session.get("user_id"),))
+                  AND (%s::int IS NULL OR hsk_levels.level_number = %s::int)
+                ORDER BY hsk_levels.level_number, exams.created_at DESC
+            """, (session.get("user_id"), level, level))
 
             exams = cursor.fetchall()
 
         return render_template(
             "teacher/exams.html",
-            exams=exams
+            exams=exams,
+            current_level=level,
+            tab_endpoint="teacher_exam.exams"
         )
 
     except Exception:

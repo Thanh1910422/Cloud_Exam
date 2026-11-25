@@ -9,6 +9,8 @@
 
     <p>Danh sách các đề thi trong hệ thống.</p>
 
+    {% include "partials/level_tabs.html" %}
+
     <div class="feature-card">
 
         <a href="{{ url_for('exam.create_exam') }}" class="btn">

@@ -111,8 +111,15 @@ def new_exam():
                 flash("Đã tạo đề thi. Bước tiếp theo: tải file PDF đề lên.", "success")
                 return back_to(exam_id)
 
+        # Bấm "+ Tạo đề HSK4 mới" -> chọn sẵn HSK4
+        preset = {}
+        wanted = request.args.get("level", "")
+        for lv in levels:
+            if str(lv["level_number"]) == wanted:
+                preset = {"level_id": str(lv["id"]),
+                          "duration_minutes": str({1: 40, 2: 55, 3: 90, 4: 105, 5: 125, 6: 140}.get(lv["level_number"], 60))}
         return render_template("teacher/new_exam.html", levels=levels,
-                               supported=supported_levels(), form={})
+                               supported=supported_levels(), form=preset)
 
     except Exception:
         if connection:

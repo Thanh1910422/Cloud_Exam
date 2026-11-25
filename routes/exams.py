@@ -54,6 +54,11 @@ def get_exam_form_data(cursor):
 @role_required("admin")
 def exams():
     connection = None
+    try:
+        level = int(request.args.get("level", ""))
+        level = level if 1 <= level <= 6 else None
+    except ValueError:
+        level = None
 
     try:
         connection = get_connection()
@@ -74,14 +79,17 @@ def exams():
                     ON exams.level_id = hsk_levels.id
                 LEFT JOIN users
                     ON exams.teacher_id = users.id
-                ORDER BY exams.created_at DESC
-            """)
+                WHERE (%s::int IS NULL OR hsk_levels.level_number = %s::int)
+                ORDER BY hsk_levels.level_number, exams.created_at DESC
+            """, (level, level))
 
             exam_list = cursor.fetchall()
 
         return render_template(
             "admin/exams.html",
-            exams=exam_list
+            exams=exam_list,
+            current_level=level,
+            tab_endpoint="exam.exams"
         )
 
     except Exception:

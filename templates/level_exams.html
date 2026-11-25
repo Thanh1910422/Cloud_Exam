@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ level.level_name }} - Đề thi - HSK Exam{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_exam.css') }}">
+<div class="exam-page">
+    <p><a href="{{ url_for('index') }}#levels">← Các cấp độ</a></p>
+
+    {% set current_level = level_number %}
+    <div class="level-tabs">
+        {% for n in range(1, 7) %}
+        <a href="{{ url_for('levels.level_exams', level_number=n) }}" class="{{ 'active' if n == level_number }}">HSK {{ n }}</a>
+        {% endfor %}
+    </div>
+    <style>
+        .level-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 18px; }
+        .level-tabs a { padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 999px; text-decoration: none; color: #334155; background: #fff; font-size: 14px; }
+        .level-tabs a.active { background: #1e40af; color: #fff; border-color: #1e40af; }
+        .exam-row-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; border: 1px solid #e2e8f0; color: #475569; }
+        .pill.on { border-color: #16a34a; color: #15803d; }
+    </style>
+
+    <div class="exam-list-item" style="margin-bottom:8px;">
+        <div>
+            <h2>Đề thi {{ level.level_name }}</h2>
+            <p class="exam-meta">
+                {% if role == 'admin' %}Tất cả đề {{ level.level_name }} trong hệ thống.
+                {% elif role == 'teacher' %}Các đề {{ level.level_name }} do bạn phụ trách (cả bản nháp).
+                {% else %}Các đề đang mở cho học viên.{% endif %}
+            </p>
+        </div>
+        {% if role == 'teacher' %}
+            <a href="{{ url_for('teacher_builder.new_exam', level=level_number) }}" class="btn-primary">+ Tạo đề {{ level.level_name }} mới</a>
+        {% elif role == 'admin' %}
+            <a href="{{ url_for('exam.create_exam') }}" class="btn-primary">+ Tạo đề mới</a>
+        {% endif %}
+    </div>
+
+    {% if role in ('teacher', 'admin') and not auto_supported %}
+    <div class="exam-card" style="border-left:5px solid #f59e0b;">
+        ⚠ {{ level.level_name }} chưa có cấu hình định dạng đề nên chưa tạo câu hỏi tự động được.
+    </div>
+    {% endif %}
+
+    {% for e in exams %}
+    <div class="exam-card exam-list-item">
+        <div>
+            <h3>{{ e.title }}</h3>
+            <div class="exam-meta">
+                {{ e.question_count }} câu · {{ e.duration_minutes }} phút
+                {% if role in ('teacher', 'admin') %}
+                    · {{ e.attempt_count }} lượt thi
+                    · {% if e.status == 'published' %}<span class="pill on">Đã xuất bản</span>
+                      {% elif e.status == 'draft' %}<span class="pill">Bản nháp</span>
+                      {% else %}<span class="pill">Lưu trữ</span>{% endif %}
+                {% endif %}
+                {% if role == 'admin' %} · GV: {{ e.teacher_name or '(chưa phân công)' }}{% endif %}
+            </div>
+            {% if e.description %}<p>{{ e.description }}</p>{% endif %}
+            {% set mine = my_attempts.get(e.id) %}
+            {% if mine and mine.times %}
+                <div class="exam-meta">Bạn đã thi {{ mine.times }} lần · điểm cao nhất {{ mine.best | int }}</div>
+            {% endif %}
+        </div>
+
+        <div class="exam-row-actions">
+            {% if role == 'student' %}
+                <form method="POST" action="{{ url_for('student_exam.start_exam', exam_id=e.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-primary" style="border:none; cursor:pointer;">
+                        {{ 'Làm tiếp' if mine and mine.in_progress else ('Thi lại' if mine and mine.times else 'Bắt đầu thi') }}
+                    </button>
+                </form>
+            {% elif role == 'teacher' %}
+                <a href="{{ url_for('teacher_questions.exam_content', exam_id=e.id) }}" class="btn-primary">Mở đề →</a>
+            {% elif role == 'admin' %}
+                <a href="{{ url_for('exam.edit_exam', exam_id=e.id) }}" class="btn-primary">Sửa</a>
+            {% else %}
+                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn-primary">Đăng nhập để thi</a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="exam-card">
+        {% if role == 'teacher' %}
+            Bạn chưa có đề {{ level.level_name }} nào. Bấm “+ Tạo đề {{ level.level_name }} mới” để bắt đầu.
+        {% elif role == 'admin' %}
+            Chưa có đề {{ level.level_name }} nào trong hệ thống.
+        {% else %}
+            Hiện chưa có đề {{ level.level_name }} nào được mở. Vui lòng quay lại sau.
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if not role %}
+    <p class="exam-meta" style="margin-top:10px;">Chưa có tài khoản? <a href="{{ url_for('auth.register', next=request.path) }}">Đăng ký miễn phí</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

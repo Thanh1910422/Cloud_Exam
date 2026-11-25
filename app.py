@@ -20,6 +20,7 @@ from routes.media import media_bp
 from routes.teacher_grading import teacher_grading_bp
 from routes.statistics import statistics_bp
 from routes.teacher_builder import teacher_builder_bp
+from routes.levels import levels_bp
 
 load_dotenv()
 
@@ -51,11 +52,29 @@ app.register_blueprint(media_bp)
 app.register_blueprint(teacher_grading_bp)
 app.register_blueprint(statistics_bp)
 app.register_blueprint(teacher_builder_bp)
+app.register_blueprint(levels_bp)
 
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # Số đề đang mở của từng cấp (lỗi database thì trang chủ vẫn hiện, chỉ thiếu con số)
+    level_counts = {}
+    connection = None
+    try:
+        from config.database import get_connection
+        from psycopg2.extras import RealDictCursor
+        from routes.levels import published_counts
+
+        connection = get_connection()
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            level_counts = published_counts(cursor)
+    except Exception:
+        app.logger.exception("Cannot load level counts")
+    finally:
+        if connection:
+            connection.close()
+
+    return render_template("index.html", level_counts=level_counts)
 
 
 @app.route("/dashboard")

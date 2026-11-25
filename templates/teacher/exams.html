@@ -9,8 +9,11 @@
 
     <p>Danh sách các đề thi bạn phụ trách (được phân công hoặc tự tạo).</p>
 
+    {% include "partials/level_tabs.html" %}
+
     <p style="margin:12px 0;">
-        <a href="{{ url_for('teacher_builder.new_exam') }}" class="btn btn-primary">+ Tạo đề thi mới</a>
+        <a href="{{ url_for('teacher_builder.new_exam', level=current_level) if current_level else url_for('teacher_builder.new_exam') }}"
+           class="btn btn-primary">+ Tạo đề {{ 'HSK ' ~ current_level ~ ' ' if current_level }}mới</a>
     </p>
 
     <div class="feature-card">

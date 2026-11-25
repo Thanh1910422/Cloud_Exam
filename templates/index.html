@@ -26,9 +26,15 @@
 
         <div class="hero-buttons">
 
-            <a href="/register" class="btn-primary">
+            {% if session.get('role') == 'student' %}
+            <a href="{{ url_for('student_exam.exams') }}" class="btn-primary">Vào thi thử</a>
+            {% elif session.get('user_id') %}
+            <a href="{{ url_for('dashboard') }}" class="btn-primary">Vào trang quản lý</a>
+            {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn-primary">
                 Bắt đầu luyện thi
             </a>
+            {% endif %}
 
             <a href="#levels" class="btn-outline">
                 Khám phá cấp độ
@@ -76,11 +82,14 @@
             <h3>HSK cấp độ {{ level }}</h3>
 
             <p>
-                Bài thi thử tiếng Trung cấp độ {{ level }}.
+                {% set n = level_counts.get(level, 0) %}
+                {% if n %}{{ n }} đề thi đang mở{% else %}Chưa có đề thi{% endif %}
             </p>
 
-            <a href="/register">
-                Bắt đầu thi →
+            <a href="{{ url_for('levels.level_exams', level_number=level) }}">
+                {% if session.get('role') == 'teacher' %}Quản lý đề HSK {{ level }} →
+                {% elif session.get('role') == 'admin' %}Xem đề HSK {{ level }} →
+                {% else %}Xem đề thi →{% endif %}
             </a>
 
         </div>

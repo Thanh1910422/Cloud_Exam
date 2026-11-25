@@ -12,6 +12,9 @@
         </div>
 
         <form method="POST" action="{{ url_for('auth.register') }}">
+            {% if request.values.get('next') %}
+            <input type="hidden" name="next" value="{{ request.values.get('next') }}">
+            {% endif %}
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <label for="full_name">Họ và tên</label>
