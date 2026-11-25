@@ -153,11 +153,17 @@ def read_pdf(pdf_bytes, ocr="auto"):
     finally:
         document.close()
 
-    images = [
-        im for im in merge_split_images(images)
-        if min(im["x1"] - im["x0"], im["y1"] - im["y0"]) >= MIN_IMAGE_SIDE
-    ]
+    images = [im for im in merge_split_images(images) if is_picture(im)]
     return pages, images
+
+
+def is_picture(im):
+    """Bỏ logo/biểu tượng nhỏ và đường kẻ mảnh; giữ tranh hẹp nhưng cao (vd người đứng 23×68pt)."""
+    short = min(im["x1"] - im["x0"], im["y1"] - im["y0"])
+    long_ = max(im["x1"] - im["x0"], im["y1"] - im["y0"])
+    if short < 8:
+        return False
+    return short >= MIN_IMAGE_SIDE or long_ >= 2 * MIN_IMAGE_SIDE
 
 
 # ------------------------------------------

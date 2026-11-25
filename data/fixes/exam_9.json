@@ -1,0 +1,203 @@
+{
+  "_ghi_chu": "Đề H11006 (HSK 1). Nội dung gõ lại theo file PDF vì chữ Hán trong PDF là hình, OCR đọc sai. Chạy: python scripts/build_exam.py --exam-id 9 --replace",
+  "16": {
+    "options": {
+      "A": "星期三",
+      "B": "星期五",
+      "C": "星期六"
+    },
+    "verified": true
+  },
+  "17": {
+    "options": {
+      "A": "桌子上",
+      "B": "桌子下",
+      "C": "椅子上"
+    },
+    "verified": true
+  },
+  "18": {
+    "options": {
+      "A": "上午",
+      "B": "中午",
+      "C": "下午"
+    },
+    "verified": true
+  },
+  "19": {
+    "options": {
+      "A": "儿子的老师",
+      "B": "儿子的学生",
+      "C": "儿子的同学"
+    },
+    "verified": true
+  },
+  "20": {
+    "options": {
+      "A": "学习",
+      "B": "开车",
+      "C": "打电话"
+    },
+    "verified": true
+  },
+  "21": {
+    "question_text": "高兴",
+    "verified": true
+  },
+  "22": {
+    "question_text": "下午",
+    "verified": true
+  },
+  "23": {
+    "question_text": "猫",
+    "verified": true
+  },
+  "24": {
+    "question_text": "医生",
+    "verified": true
+  },
+  "25": {
+    "question_text": "睡觉",
+    "verified": true
+  },
+  "26": {
+    "question_text": "10点了，我现在去学校。",
+    "verified": true
+  },
+  "27": {
+    "question_text": "这个字我不会写。",
+    "verified": true
+  },
+  "28": {
+    "question_text": "你能听见我说话吗？",
+    "verified": true
+  },
+  "29": {
+    "question_text": "怎么样？漂亮吗？",
+    "verified": true
+  },
+  "30": {
+    "question_text": "他是坐火车来的。",
+    "verified": true
+  },
+  "31": {
+    "question_text": "他爸爸在哪儿工作？",
+    "options": {
+      "A": "苹果。",
+      "B": "我24岁。",
+      "C": "王小姐。",
+      "D": "火车站。",
+      "E": "坐出租车。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "32": {
+    "question_text": "你想买什么？",
+    "options": {
+      "A": "苹果。",
+      "B": "我24岁。",
+      "C": "王小姐。",
+      "D": "火车站。",
+      "E": "坐出租车。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "33": {
+    "question_text": "明天你怎么去医院？",
+    "options": {
+      "A": "苹果。",
+      "B": "我24岁。",
+      "C": "王小姐。",
+      "D": "火车站。",
+      "E": "坐出租车。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "34": {
+    "question_text": "你今年多大了？",
+    "options": {
+      "A": "苹果。",
+      "B": "我24岁。",
+      "C": "王小姐。",
+      "D": "火车站。",
+      "E": "坐出租车。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "35": {
+    "question_text": "谁会说汉语？",
+    "options": {
+      "A": "苹果。",
+      "B": "我24岁。",
+      "C": "王小姐。",
+      "D": "火车站。",
+      "E": "坐出租车。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "36": {
+    "question_text": "今天天气很（　　）。",
+    "options": {
+      "A": "回",
+      "B": "朋友",
+      "C": "多少",
+      "D": "名字",
+      "E": "谢谢",
+      "F": "冷"
+    },
+    "verified": true
+  },
+  "37": {
+    "question_text": "你家的电话是（　　）呢？",
+    "options": {
+      "A": "回",
+      "B": "朋友",
+      "C": "多少",
+      "D": "名字",
+      "E": "谢谢",
+      "F": "冷"
+    },
+    "verified": true
+  },
+  "38": {
+    "question_text": "我认识她，她是我妈妈的（　　）。",
+    "options": {
+      "A": "回",
+      "B": "朋友",
+      "C": "多少",
+      "D": "名字",
+      "E": "谢谢",
+      "F": "冷"
+    },
+    "verified": true
+  },
+  "39": {
+    "question_text": "女：（　　）你请我看电影。\n男：不客气。再见，明天见。",
+    "options": {
+      "A": "回",
+      "B": "朋友",
+      "C": "多少",
+      "D": "名字",
+      "E": "谢谢",
+      "F": "冷"
+    },
+    "verified": true
+  },
+  "40": {
+    "question_text": "男：你什么时候（　　）中国？\n女：9月。",
+    "options": {
+      "A": "回",
+      "B": "朋友",
+      "C": "多少",
+      "D": "名字",
+      "E": "谢谢",
+      "F": "冷"
+    },
+    "verified": true
+  }
+}

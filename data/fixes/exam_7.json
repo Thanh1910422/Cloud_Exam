@@ -1,0 +1,209 @@
+{
+  "_ghi_chu": "Đề H11005 (HSK 1). Nội dung gõ lại theo file PDF vì chữ Hán trong PDF là hình, OCR đọc sai. Chạy: python scripts/build_exam.py --exam-id 7 --replace",
+  "3": {
+    "correct_answer": "B"
+  },
+  "5": {
+    "correct_answer": "B"
+  },
+  "16": {
+    "options": {
+      "A": "医生",
+      "B": "学生",
+      "C": "爸爸"
+    },
+    "verified": true
+  },
+  "17": {
+    "options": {
+      "A": "9270",
+      "B": "2790",
+      "C": "7290"
+    },
+    "verified": true
+  },
+  "18": {
+    "options": {
+      "A": "书",
+      "B": "苹果",
+      "C": "杯子"
+    },
+    "verified": true
+  },
+  "19": {
+    "options": {
+      "A": "北京",
+      "B": "饭馆儿",
+      "C": "火车站"
+    },
+    "verified": true
+  },
+  "20": {
+    "options": {
+      "A": "1点",
+      "B": "7点",
+      "C": "11点"
+    },
+    "verified": true
+  },
+  "21": {
+    "question_text": "先生",
+    "verified": true
+  },
+  "22": {
+    "question_text": "坐",
+    "verified": true
+  },
+  "23": {
+    "question_text": "喝",
+    "verified": true
+  },
+  "24": {
+    "question_text": "衣服",
+    "verified": true
+  },
+  "25": {
+    "question_text": "请",
+    "verified": true
+  },
+  "26": {
+    "question_text": "我想睡觉了，再见。",
+    "verified": true
+  },
+  "27": {
+    "question_text": "这是我买的桌子和椅子。",
+    "verified": true
+  },
+  "28": {
+    "question_text": "他今天很不高兴。",
+    "verified": true
+  },
+  "29": {
+    "question_text": "现在十点多了。",
+    "verified": true
+  },
+  "30": {
+    "question_text": "王小姐，是你的电话。",
+    "verified": true
+  },
+  "31": {
+    "question_text": "谁会说汉语？",
+    "options": {
+      "A": "一个星期。",
+      "B": "明天中午。",
+      "C": "没有。",
+      "D": "我女儿。",
+      "E": "84个。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "32": {
+    "question_text": "你们学校有多少老师？",
+    "options": {
+      "A": "一个星期。",
+      "B": "明天中午。",
+      "C": "没有。",
+      "D": "我女儿。",
+      "E": "84个。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "33": {
+    "question_text": "昨天下雨了吗？",
+    "options": {
+      "A": "一个星期。",
+      "B": "明天中午。",
+      "C": "没有。",
+      "D": "我女儿。",
+      "E": "84个。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "34": {
+    "question_text": "他们什么时候回来？",
+    "options": {
+      "A": "一个星期。",
+      "B": "明天中午。",
+      "C": "没有。",
+      "D": "我女儿。",
+      "E": "84个。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "35": {
+    "question_text": "你去北京学习几天？",
+    "options": {
+      "A": "一个星期。",
+      "B": "明天中午。",
+      "C": "没有。",
+      "D": "我女儿。",
+      "E": "84个。",
+      "F": "好的，谢谢！"
+    },
+    "verified": true
+  },
+  "36": {
+    "question_text": "我妈妈喜欢吃中国（　　）。",
+    "options": {
+      "A": "怎么样",
+      "B": "认识",
+      "C": "菜",
+      "D": "名字",
+      "E": "热",
+      "F": "工作"
+    },
+    "verified": true
+  },
+  "37": {
+    "question_text": "我朋友在前面那个商店（　　）。",
+    "options": {
+      "A": "怎么样",
+      "B": "认识",
+      "C": "菜",
+      "D": "名字",
+      "E": "热",
+      "F": "工作"
+    },
+    "verified": true
+  },
+  "38": {
+    "question_text": "天气很冷，喝点儿（　　）水吧。",
+    "options": {
+      "A": "怎么样",
+      "B": "认识",
+      "C": "菜",
+      "D": "名字",
+      "E": "热",
+      "F": "工作"
+    },
+    "verified": true
+  },
+  "39": {
+    "question_text": "女：你们是怎么（　　）的？\n男：她是我大学同学。",
+    "options": {
+      "A": "怎么样",
+      "B": "认识",
+      "C": "菜",
+      "D": "名字",
+      "E": "热",
+      "F": "工作"
+    },
+    "verified": true
+  },
+  "40": {
+    "question_text": "男：昨天的电影（　　）？\n女：我没去看电影，我在家看电视了。",
+    "options": {
+      "A": "怎么样",
+      "B": "认识",
+      "C": "菜",
+      "D": "名字",
+      "E": "热",
+      "F": "工作"
+    },
+    "verified": true
+  }
+}

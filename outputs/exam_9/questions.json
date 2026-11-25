@@ -1,0 +1,1400 @@
+[
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 1,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": "page_02_image_03.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "1.",
+        "source_page": 2,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 2,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": "page_02_image_04.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 3,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": "page_02_image_05.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 4,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": "page_02_image_06.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 5,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": "page_02_image_07.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 6,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_03_image_06.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_03_image_07.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_03_image_08.jpeg"
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 7,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_03_image_09.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_03_image_10.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_03_image_11.jpeg"
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 8,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_03_image_12.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_03_image_03.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_03_image_04.jpeg"
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 9,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_04_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_04_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_04_image_03.jpeg"
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 10,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_04_image_04.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_04_image_05.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_04_image_06.jpeg"
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "10.                            ‘AF",
+        "source_page": 4,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 11,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_05_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_05_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_05_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_05_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_05_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_05_image_06.jpeg"
+            }
+        },
+        "correct_answer": "E",
+        "points": 5.0,
+        "raw_text": "11.                                   [|",
+        "source_page": 5,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 12,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_05_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_05_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_05_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_05_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_05_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_05_image_06.jpeg"
+            }
+        },
+        "correct_answer": "D",
+        "points": 5.0,
+        "raw_text": "12.                                   [|",
+        "source_page": 5,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 13,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_05_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_05_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_05_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_05_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_05_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_05_image_06.jpeg"
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "13.                                   [|",
+        "source_page": 5,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 14,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_05_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_05_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_05_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_05_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_05_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_05_image_06.jpeg"
+            }
+        },
+        "correct_answer": "F",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 15,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_05_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_05_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_05_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_05_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_05_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_05_image_06.jpeg"
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "15.                                   [|",
+        "source_page": 5,
+        "review_notes": [],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 16,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "xingqisan       xingqiwG        xingqiliu",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "星期三",
+                "image": null
+            },
+            "B": {
+                "text": "星期五",
+                "image": null
+            },
+            "C": {
+                "text": "星期六",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "16.  A 星期三    B 星期五    C 星期六",
+        "source_page": 6,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 17,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "桌子上",
+                "image": null
+            },
+            "B": {
+                "text": "桌子下",
+                "image": null
+            },
+            "C": {
+                "text": "椅子上",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [
+            "Không tách được đáp án A/B/C",
+            "Không tìm thấy dòng câu hỏi trong PDF"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 18,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "shangwt       zhongwu        xiawU",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "上午",
+                "image": null
+            },
+            "B": {
+                "text": "中午",
+                "image": null
+            },
+            "C": {
+                "text": "下午",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "18.   A 上午      B Ft      C 下午",
+        "source_page": 6,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 19,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "儿子的老师",
+                "image": null
+            },
+            "B": {
+                "text": "儿子的学生",
+                "image": null
+            },
+            "C": {
+                "text": "儿子的同学",
+                "image": null
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "19.    A 儿子 的 老师    Xuesheng         C 儿子 的  同学",
+        "source_page": 6,
+        "review_notes": [
+            "Không tách được đáp án A/B/C"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "listening",
+        "question_number": 20,
+        "question_type": "multiple_choice",
+        "question_text": "",
+        "pinyin": "xuexi         kai che       da dianhua",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "学习",
+                "image": null
+            },
+            "B": {
+                "text": "开车",
+                "image": null
+            },
+            "C": {
+                "text": "打电话",
+                "image": null
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "20.   A 学习      B 开 车     C 打 电话",
+        "source_page": 6,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 21,
+        "question_type": "multiple_choice",
+        "question_text": "高兴",
+        "pinyin": "",
+        "question_image": "page_07_image_03.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 22,
+        "question_type": "multiple_choice",
+        "question_text": "下午",
+        "pinyin": "",
+        "question_image": "page_07_image_04.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 23,
+        "question_type": "multiple_choice",
+        "question_text": "猫",
+        "pinyin": "",
+        "question_image": "page_07_image_05.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "23.               .                              Ati",
+        "source_page": 7,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 24,
+        "question_type": "multiple_choice",
+        "question_text": "医生",
+        "pinyin": "",
+        "question_image": "page_07_image_06.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "",
+        "source_page": null,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 25,
+        "question_type": "multiple_choice",
+        "question_text": "睡觉",
+        "pinyin": "",
+        "question_image": "page_07_image_07.jpeg",
+        "options": {
+            "A": {
+                "text": "对 (✓ Đúng)",
+                "image": null
+            },
+            "B": {
+                "text": "错 (✗ Sai)",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "25.                                            睡觉",
+        "source_page": 7,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 26,
+        "question_type": "multiple_choice",
+        "question_text": "10点了，我现在去学校。",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_08_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_08_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_08_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_08_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_08_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_08_image_06.jpeg"
+            }
+        },
+        "correct_answer": "D",
+        "points": 5.0,
+        "raw_text": "26. 10 点 Ss, RH 现在 去 学校 。",
+        "source_page": 8,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 27,
+        "question_type": "multiple_choice",
+        "question_text": "这个字我不会写。",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_08_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_08_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_08_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_08_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_08_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_08_image_06.jpeg"
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "27. 这个 字我不会 写。",
+        "source_page": 8,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 28,
+        "question_type": "multiple_choice",
+        "question_text": "你能听见我说话吗？",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_08_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_08_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_08_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_08_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_08_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_08_image_06.jpeg"
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "28. 你 能 听见 我 说话 Mm ?",
+        "source_page": 8,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 29,
+        "question_type": "multiple_choice",
+        "question_text": "怎么样？漂亮吗？",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_08_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_08_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_08_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_08_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_08_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_08_image_06.jpeg"
+            }
+        },
+        "correct_answer": "F",
+        "points": 5.0,
+        "raw_text": "29.   GAR ? 漂亮 吗 ?",
+        "source_page": 8,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 30,
+        "question_type": "multiple_choice",
+        "question_text": "他是坐火车来的。",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "",
+                "image": "page_08_image_01.jpeg"
+            },
+            "B": {
+                "text": "",
+                "image": "page_08_image_02.jpeg"
+            },
+            "C": {
+                "text": "",
+                "image": "page_08_image_03.jpeg"
+            },
+            "D": {
+                "text": "",
+                "image": "page_08_image_04.jpeg"
+            },
+            "E": {
+                "text": "",
+                "image": "page_08_image_05.jpeg"
+            },
+            "F": {
+                "text": "",
+                "image": "page_08_image_06.jpeg"
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "30. fh 是 AA 火车 来的。",
+        "source_page": 8,
+        "review_notes": [],
+        "verified": true,
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 31,
+        "question_type": "multiple_choice",
+        "question_text": "他爸爸在哪儿工作？",
+        "pinyin": "Ta baba zai nar gOdngzud?              Wo   sui .",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "苹果。",
+                "image": null
+            },
+            "B": {
+                "text": "我24岁。",
+                "image": null
+            },
+            "C": {
+                "text": "王小姐。",
+                "image": null
+            },
+            "D": {
+                "text": "火车站。",
+                "image": null
+            },
+            "E": {
+                "text": "坐出租车。",
+                "image": null
+            },
+            "F": {
+                "text": "好的，谢谢！",
+                "image": null
+            }
+        },
+        "correct_answer": "D",
+        "points": 5.0,
+        "raw_text": "31. th 爸爸 在哪儿 工作 2    [| B Rum Ye.",
+        "source_page": 9,
+        "review_notes": [
+            "Thiếu nội dung đáp án ADE"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 32,
+        "question_type": "multiple_choice",
+        "question_text": "你想买什么？",
+        "pinyin": "Ni xiang mai shénme ?                Wang xiaojié .",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "苹果。",
+                "image": null
+            },
+            "B": {
+                "text": "我24岁。",
+                "image": null
+            },
+            "C": {
+                "text": "王小姐。",
+                "image": null
+            },
+            "D": {
+                "text": "火车站。",
+                "image": null
+            },
+            "E": {
+                "text": "坐出租车。",
+                "image": null
+            },
+            "F": {
+                "text": "好的，谢谢！",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "32. 你 想 买 什么 2     [|  cC 王 小组。",
+        "source_page": 9,
+        "review_notes": [
+            "Thiếu nội dung đáp án ADE"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 33,
+        "question_type": "multiple_choice",
+        "question_text": "明天你怎么去医院？",
+        "pinyin": "Mingtian ni zenme qu yiyuan?             Huochezhan .",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "苹果。",
+                "image": null
+            },
+            "B": {
+                "text": "我24岁。",
+                "image": null
+            },
+            "C": {
+                "text": "王小姐。",
+                "image": null
+            },
+            "D": {
+                "text": "火车站。",
+                "image": null
+            },
+            "E": {
+                "text": "坐出租车。",
+                "image": null
+            },
+            "F": {
+                "text": "好的，谢谢！",
+                "image": null
+            }
+        },
+        "correct_answer": "E",
+        "points": 5.0,
+        "raw_text": "33. 明天 你 怎么 去 医院? L] Dd kan.",
+        "source_page": 9,
+        "review_notes": [
+            "Thiếu nội dung đáp án ADE"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 34,
+        "question_type": "multiple_choice",
+        "question_text": "你今年多大了？",
+        "pinyin": "Ni jinnian duo da le?                 Zuo chuzuche .",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "苹果。",
+                "image": null
+            },
+            "B": {
+                "text": "我24岁。",
+                "image": null
+            },
+            "C": {
+                "text": "王小姐。",
+                "image": null
+            },
+            "D": {
+                "text": "火车站。",
+                "image": null
+            },
+            "E": {
+                "text": "坐出租车。",
+                "image": null
+            },
+            "F": {
+                "text": "好的，谢谢！",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "34. 你 今年 多 KT?    [| BE ® 出租车 。",
+        "source_page": 9,
+        "review_notes": [
+            "Thiếu nội dung đáp án ADE"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 35,
+        "question_type": "multiple_choice",
+        "question_text": "谁会说汉语？",
+        "pinyin": "Shéi hui shuo Hanyu?                 Hao de,",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "苹果。",
+                "image": null
+            },
+            "B": {
+                "text": "我24岁。",
+                "image": null
+            },
+            "C": {
+                "text": "王小姐。",
+                "image": null
+            },
+            "D": {
+                "text": "火车站。",
+                "image": null
+            },
+            "E": {
+                "text": "坐出租车。",
+                "image": null
+            },
+            "F": {
+                "text": "好的，谢谢！",
+                "image": null
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "35. ik 会 说 汉语3?     [|    F 好 的，",
+        "source_page": 9,
+        "review_notes": [
+            "Thiếu nội dung đáp án ADE"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 36,
+        "question_type": "multiple_choice",
+        "question_text": "今天天气很（　　）。",
+        "pinyin": "Jintian tianqi hen",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "回",
+                "image": null
+            },
+            "B": {
+                "text": "朋友",
+                "image": null
+            },
+            "C": {
+                "text": "多少",
+                "image": null
+            },
+            "D": {
+                "text": "名字",
+                "image": null
+            },
+            "E": {
+                "text": "谢谢",
+                "image": null
+            },
+            "F": {
+                "text": "冷",
+                "image": null
+            }
+        },
+        "correct_answer": "F",
+        "points": 5.0,
+        "raw_text": "36. 今天 天气 很 ¢  )。",
+        "source_page": 10,
+        "review_notes": [
+            "Thiếu nội dung đáp án ACDF"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 37,
+        "question_type": "multiple_choice",
+        "question_text": "你家的电话是（　　）呢？",
+        "pinyin": "Ni jia de dianhua shi      ne ?",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "回",
+                "image": null
+            },
+            "B": {
+                "text": "朋友",
+                "image": null
+            },
+            "C": {
+                "text": "多少",
+                "image": null
+            },
+            "D": {
+                "text": "名字",
+                "image": null
+            },
+            "E": {
+                "text": "谢谢",
+                "image": null
+            },
+            "F": {
+                "text": "冷",
+                "image": null
+            }
+        },
+        "correct_answer": "C",
+        "points": 5.0,
+        "raw_text": "37. 你家的 电话 是  ) We ?",
+        "source_page": 10,
+        "review_notes": [
+            "Thiếu nội dung đáp án ACDF"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 38,
+        "question_type": "multiple_choice",
+        "question_text": "我认识她，她是我妈妈的（　　）。",
+        "pinyin": "Wo rénshi ta,  ta shi wo mama de",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "回",
+                "image": null
+            },
+            "B": {
+                "text": "朋友",
+                "image": null
+            },
+            "C": {
+                "text": "多少",
+                "image": null
+            },
+            "D": {
+                "text": "名字",
+                "image": null
+            },
+            "E": {
+                "text": "谢谢",
+                "image": null
+            },
+            "F": {
+                "text": "冷",
+                "image": null
+            }
+        },
+        "correct_answer": "B",
+        "points": 5.0,
+        "raw_text": "38. 我 认识 她，她是我 妈妈 I ¢   Ye",
+        "source_page": 10,
+        "review_notes": [
+            "Thiếu nội dung đáp án ACDF"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 39,
+        "question_type": "multiple_choice",
+        "question_text": "女：（　　）你请我看电影。\n男：不客气。再见，明天见。",
+        "pinyin": "ni qing wo kan dianying .",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "回",
+                "image": null
+            },
+            "B": {
+                "text": "朋友",
+                "image": null
+            },
+            "C": {
+                "text": "多少",
+                "image": null
+            },
+            "D": {
+                "text": "名字",
+                "image": null
+            },
+            "E": {
+                "text": "谢谢",
+                "image": null
+            },
+            "F": {
+                "text": "冷",
+                "image": null
+            }
+        },
+        "correct_answer": "E",
+        "points": 5.0,
+        "raw_text": "39. &: (   )你请我看 电影 。",
+        "source_page": 10,
+        "review_notes": [
+            "Thiếu nội dung đáp án ACDF"
+        ],
+        "needs_review": false
+    },
+    {
+        "level": 1,
+        "section": "reading",
+        "question_number": 40,
+        "question_type": "multiple_choice",
+        "question_text": "男：你什么时候（　　）中国？\n女：9月。",
+        "pinyin": "",
+        "question_image": null,
+        "options": {
+            "A": {
+                "text": "回",
+                "image": null
+            },
+            "B": {
+                "text": "朋友",
+                "image": null
+            },
+            "C": {
+                "text": "多少",
+                "image": null
+            },
+            "D": {
+                "text": "名字",
+                "image": null
+            },
+            "E": {
+                "text": "谢谢",
+                "image": null
+            },
+            "F": {
+                "text": "冷",
+                "image": null
+            }
+        },
+        "correct_answer": "A",
+        "points": 5.0,
+        "raw_text": "40. 男: 你 什么 时候 ¢  ) 中国 ?",
+        "source_page": 10,
+        "review_notes": [
+            "Thiếu nội dung đáp án ACDF"
+        ],
+        "needs_review": false
+    }
+]
