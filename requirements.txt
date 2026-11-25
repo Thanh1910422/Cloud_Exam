@@ -14,3 +14,4 @@ supabase
 # Đọc PDF đề + file đáp án DOCX ngay trên web (nút "Tạo câu hỏi tự động")
 pymupdf
 python-docx
+pillow

@@ -129,7 +129,8 @@ def read_pdf(pdf_bytes, ocr="auto"):
                 if not rects:
                     continue
                 rect = rects[0]
-                if min(rect.width, rect.height) < MIN_IMAGE_SIDE:
+                # Mảnh rất nhỏ thì bỏ ngay; ảnh nhỏ khác lọc sau khi ghép mảnh
+                if min(rect.width, rect.height) < 5:
                     continue
 
                 data = document.extract_image(xref)
@@ -143,7 +144,122 @@ def read_pdf(pdf_bytes, ocr="auto"):
     finally:
         document.close()
 
+    images = [
+        im for im in merge_split_images(images)
+        if min(im["x1"] - im["x0"], im["y1"] - im["y0"]) >= MIN_IMAGE_SIDE
+    ]
     return pages, images
+
+
+# ------------------------------------------
+# Ghép tranh bị cắt thành nhiều mảnh
+# ------------------------------------------
+# Một số PDF (vd HSK2 H21006) lưu mỗi tranh thành 2 mảnh trên/dưới nằm sát nhau.
+# Ghép lại để 1 tranh = 1 ảnh, nếu không số ảnh sẽ bị dư gấp đôi.
+SPLIT_GAP = 2.5        # khe hở tối đa giữa 2 mảnh (pt)
+SPLIT_EDGE = 3         # lệch mép trái/phải tối đa (pt)
+
+
+def _is_continuation(top, bottom):
+    return (
+        top["page"] == bottom["page"]
+        and abs(top["x0"] - bottom["x0"]) <= SPLIT_EDGE
+        and abs(top["x1"] - bottom["x1"]) <= SPLIT_EDGE
+        and abs(bottom["y0"] - top["y1"]) <= SPLIT_GAP
+    )
+
+
+def _stitch_vertical(pieces):
+    """Ghép ảnh theo chiều dọc. Trả về bytes PNG, hoặc None nếu không ghép được."""
+    try:
+        from PIL import Image
+        opened = [Image.open(io.BytesIO(p["data"])).convert("RGB") for p in pieces]
+        width = max(im.width for im in opened)
+        canvas = Image.new("RGB", (width, sum(im.height for im in opened)), "white")
+        y = 0
+        for im in opened:
+            canvas.paste(im, (0, y))
+            y += im.height
+        out = io.BytesIO()
+        canvas.save(out, "PNG", optimize=True)
+        return out.getvalue()
+    except Exception:
+        pass
+
+    try:
+        try:
+            import pymupdf as fitz
+        except ImportError:
+            import fitz
+        pixmaps = []
+        for p in pieces:
+            pix = fitz.Pixmap(p["data"])
+            if pix.alpha:
+                pix = fitz.Pixmap(pix, 0)
+            if pix.colorspace is None or pix.colorspace.n != 3:
+                pix = fitz.Pixmap(fitz.csRGB, pix)
+            pixmaps.append(pix)
+        width = max(p.width for p in pixmaps)
+        height = sum(p.height for p in pixmaps)
+        canvas = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, width, height), False)
+        canvas.clear_with(255)
+        y = 0
+        for pix in pixmaps:
+            pix.set_origin(0, y)
+            canvas.copy(pix, pix.irect)
+            y += pix.height
+        return canvas.tobytes("png")
+    except Exception:
+        return None
+
+
+def merge_split_images(images):
+    """Gộp các mảnh ảnh nằm chồng nối tiếp nhau (cùng cột, mảnh dưới bắt đầu đúng chỗ mảnh trên kết thúc)."""
+    if not images:
+        return images
+
+    remaining = sorted(images, key=lambda im: (im["page"], im["y0"], im["x0"]))
+    used = set()
+    result = []
+    for i, first in enumerate(remaining):
+        if i in used:
+            continue
+        group = [first]
+        used.add(i)
+        current = first
+        for j in range(i + 1, len(remaining)):
+            if j in used:
+                continue
+            candidate = remaining[j]
+            if candidate["page"] != first["page"]:
+                break
+            if _is_continuation(current, candidate):
+                group.append(candidate)
+                used.add(j)
+                current = candidate
+
+        if len(group) == 1 or not all(p.get("data") for p in group):
+            result.extend(group)
+            continue
+
+        data = _stitch_vertical(group)
+        if data is None:
+            result.extend(group)
+            continue
+        stem = first["filename"].rsplit(".", 1)[0]
+        result.append({
+            **first,
+            "filename": f"{stem}_ghep.png",
+            "ext": "png",
+            "data": data,
+            "x0": min(p["x0"] for p in group),
+            "y0": first["y0"],
+            "x1": max(p["x1"] for p in group),
+            "y1": group[-1]["y1"],
+        })
+
+    # giữ thứ tự gốc theo trang để các bước sau sắp xếp lại
+    return sorted(result, key=lambda im: (im["page"], im["y0"], im["x0"]))
 
 
 def ocr_page(page):

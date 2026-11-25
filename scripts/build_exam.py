@@ -103,7 +103,8 @@ def load_from_files(text_path, manifest_path, images_dir):
             "ext": path.suffix.lstrip("."),
             "data": path.read_bytes() if path.exists() else None,
         })
-    return pages, images
+    from services.exam_builder import merge_split_images
+    return pages, merge_split_images(images)
 
 
 # ------------------------------------------
