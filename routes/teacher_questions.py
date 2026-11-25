@@ -444,20 +444,68 @@ def edit_question(question_id):
                         VALUES (%s, %s, %s, %s)
                     """, (question_id, label, new_text, label == correct_label))
 
+                # Dùng chung các đáp án A-F cho nhiều câu (vd câu 31-35 của HSK 1)
+                shared_message = ""
+                if not typed and request.form.get("apply_shared"):
+                    try:
+                        range_from = int(request.form.get("shared_from", ""))
+                        range_to = int(request.form.get("shared_to", ""))
+                    except ValueError:
+                        range_from = range_to = None
+                    if range_from is None or range_from > range_to:
+                        connection.rollback()
+                        flash("Khoảng câu áp dụng không hợp lệ.", "error")
+                        return redirect(url_for(
+                            "teacher_questions.edit_question", question_id=question_id
+                        ))
+
+                    shared = {}
+                    for option in options:
+                        shared[option["option_label"]] = request.form.get(
+                            f"option_{option['id']}", "").strip()
+                    for label in missing_labels:
+                        shared[label] = request.form.get(f"new_option_{label}", "").strip()
+                    shared = {label: text for label, text in shared.items() if text}
+
+                    cursor.execute("""
+                        SELECT id FROM questions
+                        WHERE section_id = %s
+                          AND question_type = 'multiple_choice'
+                          AND sort_order BETWEEN %s AND %s
+                          AND id <> %s
+                    """, (question["section_id"], range_from, range_to, question_id))
+                    others = [row["id"] for row in cursor.fetchall()]
+
+                    for other_id in others:
+                        for label, text in shared.items():
+                            # giữ nguyên đáp án đúng và ảnh của từng câu, chỉ thay nội dung chữ
+                            cursor.execute("""
+                                INSERT INTO answer_options
+                                    (question_id, option_label, option_text, is_correct)
+                                VALUES (%s, %s, %s, FALSE)
+                                ON CONFLICT (question_id, option_label)
+                                DO UPDATE SET option_text = EXCLUDED.option_text
+                            """, (other_id, label, text))
+                    shared_message = (f" Đã áp dụng đáp án {''.join(sorted(shared))} "
+                                      f"cho {len(others)} câu khác ({range_from}–{range_to}).")
+
                 connection.commit()
-                flash(f"Đã lưu câu {question['sort_order']}.", "success")
+                flash(f"Đã lưu câu {question['sort_order']}.{shared_message}", "success")
 
                 return redirect(url_for(
                     "teacher_questions.section_questions",
                     section_id=question["section_id"]
                 ) + f"#q{question_id}")
 
+        all_labels = existing | set(missing_labels)
+        shared_bank = not typed and any(label > "C" for label in all_labels)
         return render_template(
             "teacher/edit_question.html",
             question=question,
             options=options,
             missing_labels=missing_labels,
-            typed=typed
+            typed=typed,
+            shared_bank=shared_bank
         )
 
     except HTTPException:

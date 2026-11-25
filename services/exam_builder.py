@@ -36,6 +36,10 @@ LATIN_ONLY = re.compile(
     r"^[A-Za-zÀ-ỹāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü\s,.?!'’，．。？！：:“”\-]+$"
 )
 BANK_ITEM = re.compile(r"(?:^|\s)([A-F])\s+(?=[一-鿿])")
+# Ô trống để ghi đáp án và rác OCR của nó: "[ ]", "[|", "LJ]", "¢", "口"
+BOX_JUNK = r"[\s\[\]|_丨LJ¢<>口□]"
+# Phần đáp án nằm cùng hàng bên phải câu hỏi: "谁会说汉语？   [ B 明天中午。"
+ROW_ANSWER = re.compile(rf"(?:(?<=[？?。！!])|\s{{2,}}){BOX_JUNK}*(?:[a-z]?([A-F])[A-Za-z]?)\s+(.*)$")
 
 
 class BuildError(Exception):
@@ -106,16 +110,21 @@ def read_pdf(pdf_bytes, ocr="auto"):
     pages, images = [], []
 
     try:
+        # Có PDF vẽ chữ Hán thành hình (vd H11005): lớp chữ chỉ còn số và chữ Latin.
+        # Khi cả tệp gần như không có chữ Hán thì OCR mọi trang.
+        native_texts = [page.get_text("text", sort=True) for page in document]
+        no_chinese = sum(len(CJK.findall(t)) for t in native_texts) < 100
+
         for page_index, page in enumerate(document):
             number = page_index + 1
 
             # ---- chữ ----
-            text = page.get_text("text", sort=True)
+            text = native_texts[page_index]
             source = "native"
             # Trang scan thì gần như không có lớp chữ -> mới cần OCR.
             # Trang chỉ có tranh + số câu (vd "6．7．") vẫn dùng chữ có sẵn.
             if ocr == "always" or (
-                ocr == "auto" and len(re.sub(r"\s", "", text)) < MIN_TEXT_FOR_NATIVE
+                ocr == "auto" and (no_chinese or len(re.sub(r"\s", "", text)) < MIN_TEXT_FOR_NATIVE)
             ):
                 ocr_text = ocr_page(page)
                 if ocr_text is not None:
@@ -276,7 +285,7 @@ def ocr_page(page):
         return None
 
     try:
-        pix = page.get_pixmap(matrix=fitz.Matrix(3, 3), alpha=False)
+        pix = page.get_pixmap(matrix=fitz.Matrix(4, 4), alpha=False)
         image = Image.open(io.BytesIO(pix.tobytes("png")))
         return pytesseract.image_to_string(image, lang="chi_sim+eng", config="--psm 6")
     except Exception:
@@ -484,32 +493,55 @@ def continuation(lines, index):
 
 
 def find_question_lines(lines, first, last):
-    """Tìm dòng bắt đầu bằng số câu; tìm tuần tự để tránh nhầm với số trang."""
+    """Tìm dòng bắt đầu bằng số câu.
+
+    Số câu phải tăng dần theo thứ tự dòng. OCR hay sinh ra số lạc ("6", "7" trong tranh),
+    nên chọn dãy dòng tăng dần khớp được nhiều câu nhất (ưu tiên dòng có nội dung)
+    thay vì lấy dòng đầu tiên gặp được.
+    """
+    candidates = []                      # (index, number, weight, match)
+    for index, (page, line) in enumerate(lines):
+        match = QUESTION_LINE.match(line)
+        if match and first <= int(match.group(1)) <= last:
+            has_text = bool((match.group(2) or "").strip())
+            candidates.append((index, int(match.group(1)), 1.0 + (0.5 if has_text else 0.0), match))
+
+    # dãy con tăng dần (theo dòng và theo số câu) có tổng trọng số lớn nhất
+    best, prev = [], []
+    for i, (index, number, weight, _) in enumerate(candidates):
+        score, link = weight, -1
+        for j in range(i):
+            if candidates[j][1] < number and best[j] + weight > score:
+                score, link = best[j] + weight, j
+        best.append(score)
+        prev.append(link)
+
+    chosen = []
+    if candidates:
+        i = max(range(len(candidates)), key=lambda k: (best[k], -k))
+        while i != -1:
+            chosen.append(candidates[i])
+            i = prev[i]
+
     found = {}
-    cursor = 0
-    for number in range(first, last + 1):
-        for index in range(cursor, len(lines)):
-            page, line = lines[index]
-            match = QUESTION_LINE.match(line)
-            if match and int(match.group(1)) == number:
-                previous = ""
-                for back in range(index - 1, max(index - 4, -1), -1):
-                    candidate = lines[back][1]
-                    if re.fullmatch(r"[（()）\s]*", candidate):
-                        continue           # dòng chỉ có "（" do PDF tách
-                    previous = candidate
-                    break
-                found[number] = {
-                    "page": page,
-                    "index": index,
-                    "text": (match.group(2) or "").strip(),
-                    "more": continuation(lines, index),
-                    "block": block_after(lines, index),
-                    "pinyin": previous if LATIN_ONLY.match(previous) else "",
-                    "raw_text": line,
-                }
-                cursor = index + 1
-                break
+    for index, number, _, match in reversed(chosen):
+        page, line = lines[index]
+        previous = ""
+        for back in range(index - 1, max(index - 4, -1), -1):
+            candidate = lines[back][1]
+            if re.fullmatch(r"[（()）\s]*", candidate):
+                continue           # dòng chỉ có "（" do PDF tách
+            previous = candidate
+            break
+        found[number] = {
+            "page": page,
+            "index": index,
+            "text": (match.group(2) or "").strip(),
+            "more": continuation(lines, index),
+            "block": block_after(lines, index),
+            "pinyin": previous if LATIN_ONLY.match(previous) else "",
+            "raw_text": line,
+        }
     return found
 
 
@@ -578,6 +610,15 @@ def parse_inline_options(text, labels="ABC"):
     if len(chunks) != len(labels):
         return {}
     return {label: clean_chinese(re.sub(r"^[A-F]\s+", "", chunk)) for label, chunk in zip(labels, chunks)}
+
+
+def split_row_answer(text, labels):
+    """'谁会说汉语？ [ B 明天中午。' -> ('谁会说汉语？', 'B', '明天中午。'); không có thì (text, None, '')."""
+    match = ROW_ANSWER.search(text or "")
+    if not match or match.group(1) not in labels or not text[:match.start()].strip():
+        return text, None, ""
+    rest = CJK_RUN.match(re.sub(rf"^[^{CJK_PUNCT}]*", "", match.group(2)))
+    return text[:match.start()].rstrip(), match.group(1), clean_chinese(rest.group(0)) if rest else ""
 
 
 def find_word_bank(lines, pages_of_part, labels):
@@ -678,8 +719,16 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
         part_pages = {found[n]["page"] for n in numbers if n in found}
 
         bank = {}
+        row_heads = {}
         if kind == "shared_text":
             bank = find_word_bank(lines, part_pages, part["labels"])
+            # HSK 1 câu 31-35: đáp án nằm cùng hàng, bên phải câu hỏi -> tách ra khỏi câu hỏi
+            for n in numbers:
+                head, row_label, row_text = split_row_answer(found.get(n, {}).get("text", ""), part["labels"])
+                if row_label:
+                    row_heads[n] = head
+                    if row_text and not bank.get(row_label):
+                        bank[row_label] = row_text
 
         for n in numbers:
             info = found.get(n, {})
@@ -730,6 +779,8 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                 if not parsed:
                     notes.append(f"Không tách được đáp án {'/'.join(labels)}")
             elif kind == "shared_text":
+                if n in row_heads:
+                    info = dict(info, text=row_heads[n])
                 for label, text in bank.items():
                     options[label]["text"] = text
                 if len(bank) < len(labels):
@@ -737,7 +788,8 @@ def build_questions(level_cfg, pages, images, fixes=None, answers=None, text_ans
                     notes.append(f"Thiếu nội dung đáp án {missing}")
 
             if part.get("text"):
-                text_lines = [info.get("text", "")] + info.get("more", [])
+                text_lines = [re.sub(rf"\s{{2,}}{BOX_JUNK}*$", "", t)
+                              for t in [info.get("text", "")] + info.get("more", [])]
                 question_text = "\n".join(
                     t for t in (clean_chinese(x) for x in text_lines) if t
                 )

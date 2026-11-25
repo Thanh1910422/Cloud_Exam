@@ -179,10 +179,12 @@ def build_from_storage(cursor, storage, exam_id, replace=False, log=print):
     pages, images = read_pdf(storage.download(doc["storage_path"]), ocr="auto")
 
     text_chars = sum(len(re.sub(r"\s", "", p["text"])) for p in pages)
-    if text_chars < 200:
+    chinese_chars = sum(len(re.findall(r"[\u4e00-\u9fff]", p["text"])) for p in pages)
+    if text_chars < 200 or chinese_chars < 100:
         raise BuildError(
-            "File PDF này gần như không có lớp chữ (PDF dạng scan). Web không đọc được loại này; "
-            "hãy dùng PDF có chữ chọn được, hoặc nhờ quản trị viên chạy lệnh có OCR trên máy."
+            "File PDF này không có lớp chữ Hán đọc được (PDF dạng scan, hoặc chữ Hán được vẽ thành hình). "
+            "Web không đọc được loại này. Hãy chạy trên máy đã cài Tesseract: "
+            f"python scripts/build_exam.py --exam-id {exam_id} --ocr always"
         )
 
     answers, text_answers, source = read_answer_key(cursor, storage, exam_id, pages, log=log)

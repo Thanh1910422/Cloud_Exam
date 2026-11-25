@@ -71,6 +71,22 @@
                    placeholder="Đáp án {{ label }} chưa có — nhập để thêm">
         </label>
         {% endfor %}
+
+        {% if shared_bank %}
+        {% set group_from = ((question.sort_order - 1) // 5) * 5 + 1 %}
+        <div style="margin:14px 0; padding:12px; border:1px solid #c7d7f5; border-radius:6px; background:#f4f8ff;">
+            <label>
+                <input type="checkbox" name="apply_shared" value="1">
+                <strong>Dùng chung nội dung các đáp án A–F này cho các câu</strong>
+            </label>
+            từ <input type="number" name="shared_from" value="{{ group_from }}" min="1" style="width:70px;">
+            đến <input type="number" name="shared_to" value="{{ group_from + 4 }}" min="1" style="width:70px;">
+            <div style="color:#555; font-size:14px; margin-top:6px;">
+                Dùng cho phần nhiều câu cùng chọn trong một bộ đáp án (vd HSK 1 câu 31–35, 36–40).
+                Chỉ thay nội dung chữ của đáp án; đáp án đúng và ảnh của từng câu được giữ nguyên.
+            </div>
+        </div>
+        {% endif %}
         {% endif %}
 
         <button type="submit">Lưu câu hỏi</button>
