@@ -1,16 +1,3 @@
-"""
-Giáo viên tự tạo đề trên web, không cần chạy lệnh:
-
-  GET/POST /teacher/exams/new                    Tạo đề thi mới (cấp độ, tên, thời gian)
-  POST     /teacher/exams/<id>/upload-url        Xin link để trình duyệt tải file THẲNG lên Supabase
-  POST     /teacher/exams/<id>/upload-complete   Ghi nhận file vừa tải lên
-  POST     /teacher/exams/<id>/build             Tạo câu hỏi tự động từ file PDF đề
-  POST     /teacher/exams/<id>/update-answers    Cập nhật đáp án (file đáp án / trang đáp án trong đề)
-  POST     /teacher/exams/<id>/status            Xuất bản / ẩn đề
-
-File đi thẳng từ trình duyệt lên Supabase Storage nên không bị giới hạn 4.5 MB của Vercel.
-"""
-
 import re
 from pathlib import Path
 from uuid import uuid4

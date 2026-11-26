@@ -1,10 +1,3 @@
-"""
-Thống kê:
-    /admin/stats?period=30         Admin: tài khoản đăng ký, giảng viên, kết quả thi
-    /teacher/results?period=30     Giáo viên: kết quả thi các đề mình phụ trách
-period = 7 | 30 | 90 | all
-"""
-
 from flask import (
     Blueprint,
     render_template,

@@ -1,14 +1,3 @@
-"""
-Khu vực học viên: xem đề, làm bài, nộp bài, chấm điểm tự động, xem kết quả.
-
-Đường dẫn:
-    /student/exams/                         Danh sách đề đã publish + lịch sử thi
-    /student/exams/<exam_id>/start  (POST)  Bắt đầu (hoặc làm tiếp) một lượt thi
-    /student/exams/attempts/<id>            Trang làm bài
-    /student/exams/attempts/<id>/submit     Nộp bài + chấm điểm (POST)
-    /student/exams/attempts/<id>/result     Xem kết quả
-"""
-
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 

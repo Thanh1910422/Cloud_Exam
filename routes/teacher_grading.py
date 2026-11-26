@@ -1,13 +1,3 @@
-"""
-Giáo viên chấm bài Viết tự luận (question_type = 'essay'), vd HSK4 câu 96-100.
-
-    /teacher/grading/                    Danh sách bài cần chấm + đã chấm gần đây
-    /teacher/grading/<attempt_id>        Chấm từng câu: nhập điểm + nhận xét
-
-Điểm lưu ở writing_scores (lịch sử chấm) và student_answers.awarded_points;
-sau khi chấm, điểm Viết + tổng điểm của lượt thi được tính lại, status -> 'graded'.
-"""
-
 from decimal import Decimal, InvalidOperation
 
 from flask import (

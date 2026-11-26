@@ -1,16 +1,3 @@
-"""
-Tạo dữ liệu câu hỏi HSK1 hoàn chỉnh (40 câu) từ:
-  1. outputs/HSK1_extracted.txt         (text OCR)
-  2. outputs/question_image_mapping.json (ảnh đã ghép theo câu / đáp án)
-  3. data/hsk1_manual_fixes.json        (sửa tay chỗ OCR đọc sai)
-
-Khác bản cũ:
-- Luôn tạo đủ 40 câu theo cấu trúc đề, kể cả câu 1-8 mà OCR không đọc được số.
-- Ảnh gắn theo question_number + option_label, không gắn cả trang vào mọi câu.
-- Tách được đáp án A/B/C trên cùng một dòng (câu 16-20), kể cả khi OCR mất chữ "B".
-- Dòng pinyin nằm TRÊN dòng chữ Hán, nên lấy dòng phía trước làm pinyin.
-"""
-
 import re
 import json
 from pathlib import Path

@@ -1,12 +1,3 @@
-"""
-Phục vụ ảnh câu hỏi lưu trên Supabase Storage (bucket riêng tư).
-
-Ảnh của đề tạo tự động được lưu ở  exams/<id>/question_images/auto/<file>
-và trong DB ghi URL dạng            /media/exams/<id>/question_images/auto/<file>
-Route này tạo link tạm (signed URL) rồi chuyển hướng trình duyệt tới đó.
-Nhờ vậy thêm đề mới KHÔNG cần git push lại ảnh lên Vercel.
-"""
-
 import time
 
 from flask import Blueprint, abort, redirect, session, current_app

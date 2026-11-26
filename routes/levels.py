@@ -1,12 +1,3 @@
-"""
-Trang đề thi theo cấp độ:  /hsk/<cấp>   (vd /hsk/4)
-
-Nội dung tùy theo người xem:
-  - Khách (chưa đăng nhập) / học viên : các đề ĐÃ XUẤT BẢN có câu hỏi -> Bắt đầu thi
-  - Giáo viên                          : các đề của mình (mọi trạng thái) -> Mở đề, tạo đề mới
-  - Admin                              : mọi đề của cấp -> Sửa, xem giáo viên phụ trách
-"""
-
 from flask import Blueprint, render_template, current_app, flash, redirect, url_for, session, abort
 from psycopg2.extras import RealDictCursor
 

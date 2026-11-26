@@ -1,13 +1,3 @@
-"""
-Truy vấn thống kê dùng chung cho trang admin và trang giáo viên.
-
-- days      : chỉ tính dữ liệu trong N ngày gần nhất (None = toàn bộ)
-- teacher_id: chỉ tính các đề thi do giáo viên này phụ trách (None = mọi đề)
-
-Điểm tối đa của mỗi đề = tổng điểm các câu hỏi (200 với HSK1-2, 300 với HSK3-6),
-nên kết quả các cấp được so sánh theo % điểm. Đạt = >= 60% điểm tối đa.
-"""
-
 PASS_RATIO = 0.6
 PERIOD_CHOICES = {"7": 7, "30": 30, "90": 90, "all": None}
 
